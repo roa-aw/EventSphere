@@ -1,19 +1,21 @@
 import { useState } from "react";
 import Login from "./pages/Login";
 import Events from "./pages/Events";
+import Booking from "./pages/Booking";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-  return (
-    <div>
-      {!token ? (
-        <Login setToken={setToken} />
-      ) : (
-        <Events token={token} />
-      )}
-    </div>
-  );
+  if (!token) {
+    return <Login setToken={setToken} />;
+  }
+
+  if (selectedEvent) {
+    return <Booking event={selectedEvent} />;
+  }
+
+  return <Events setSelectedEvent={setSelectedEvent} />;
 }
 
 export default App;
