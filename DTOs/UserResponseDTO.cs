@@ -1,6 +1,7 @@
+namespace EventSphere.API.DTOs;
 public class UserResponseDTO
 {
     public Guid Id { get; set; }
-    public string FullName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
+    public required string FullName { get; set; }
+    public required string Email { get; set; }
 }

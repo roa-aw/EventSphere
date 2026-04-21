@@ -1,3 +1,12 @@
+C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.csproj.AssemblyReference.cache
+C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.AssemblyInfoInputs.cache
+C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.AssemblyInfo.cs
+C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.csproj.CoreCompileInputs.cache
+C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.sourcelink.json
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\appsettings.Development.json
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\appsettings.json
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\EventSphere.API.staticwebassets.endpoints.json
@@ -6,6 +15,7 @@ C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\EventSphere.API.deps.json
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\EventSphere.API.runtimeconfig.json
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\EventSphere.API.dll
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\EventSphere.API.pdb
+C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\BCrypt.Net-Next.dll
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\Humanizer.dll
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\Microsoft.Build.Framework.dll
@@ -107,14 +117,6 @@ C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.Works
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
-C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.csproj.AssemblyReference.cache
-C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\rpswa.dswa.cache.json
-C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.AssemblyInfoInputs.cache
-C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.AssemblyInfo.cs
-C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.csproj.CoreCompileInputs.cache
-C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\rjimswa.dswa.cache.json
 C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
@@ -130,4 +132,6 @@ C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\refint\EventSphere.API.dll
 C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.pdb
 C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\EventSphere.API.genruntimeconfig.cache
 C:\Users\roaa4\EventSphere.API\obj\Debug\net10.0\ref\EventSphere.API.dll
-C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\BCrypt.Net-Next.dll
+C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\eventsphere-frontend\package-lock.json
+C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\eventsphere-frontend\package.json
+C:\Users\roaa4\EventSphere.API\bin\Debug\net10.0\eventsphere-frontend\public\manifest.json

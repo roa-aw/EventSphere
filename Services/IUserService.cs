@@ -1,3 +1,7 @@
+using EventSphere.API.DTOs;
+
+namespace EventSphere.API.Services;
+
 public interface IUserService
 {
     Task<List<UserResponseDTO>> GetAllUsers();

@@ -1,6 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace EventSphere.API.DTOs;
+
 public class UserCreateDTO
 {
-    public string FullName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty; 
+    [Required]
+    public required string FullName { get; set; }
+
+    [Required]
+    [EmailAddress]
+    public required string Email { get; set; }
+
+    [Required]
+    [MinLength(6)]
+    public required string Password { get; set; }
 }

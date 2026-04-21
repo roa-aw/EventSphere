@@ -1,14 +1,29 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models; // ✅ ADD THIS
+using Microsoft.OpenApi.Models;
 using System.Text;
+
+using EventSphere.API.Data;
+using EventSphere.API.Interfaces;
+using EventSphere.API.Services;
+using EventSphere.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
+// Services
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 
+// DB
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Swagger
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -37,18 +52,9 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddControllers();
-
-// DB
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Service Layer
-builder.Services.AddScoped<IUserService, UserService>();
-
-// ================= JWT CONFIG =================
+// JWT
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
+var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]!);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -69,25 +75,34 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
-// =================================================
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+});
+
 
 var app = builder.Build();
+
+app.UseCors("AllowFrontend");
+// Middleware
+app.UseRouting();
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// JWT Middleware
-app.UseAuthentication();
-app.UseAuthorization();
-
-// Controllers
 app.MapControllers();
-
-// Test endpoint
-app.MapGet("/weatherforecast", () =>
-{
-    return new[] { "API is working 🚀" };
-});
 
 app.Run();

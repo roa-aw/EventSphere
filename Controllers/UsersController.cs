@@ -2,6 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
+using EventSphere.API.Data;
+using EventSphere.API.Entities;
+using EventSphere.API.DTOs;
+using System.Security.Claims;
+
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
@@ -35,6 +40,18 @@ public class UsersController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetUser(Guid id)
     {
+        var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (currentUserIdClaim == null || string.IsNullOrEmpty(currentUserIdClaim.Value))
+        {
+            return Unauthorized();
+        }
+        var currentUserId = Guid.Parse(currentUserIdClaim.Value);
+
+        if (id != currentUserId && !User.IsInRole("Admin"))
+        {
+            return Forbid();
+        }
+
         var user = await _context.Users
             .Where(u => u.Id == id)
             .Select(u => new UserResponseDTO

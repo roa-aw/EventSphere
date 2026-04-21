@@ -1,4 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using EventSphere.API.Data;
+using EventSphere.API.DTOs;
+using EventSphere.API.Entities;
+using BCrypt.Net;
+
+namespace EventSphere.API.Services;
 
 public class UserService : IUserService
 {
@@ -41,7 +47,7 @@ public class UserService : IUserService
             Id = Guid.NewGuid(),
             FullName = dto.FullName,
             Email = dto.Email,
-            PasswordHash = dto.Password,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Role = "User"
         };
 
