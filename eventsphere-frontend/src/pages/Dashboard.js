@@ -19,30 +19,39 @@ export default function Dashboard() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      
-      // Get recent events
+
+      // ✅ Always allowed
       const eventsRes = await API.get("/events");
       const events = eventsRes.data || [];
-      
-      // Get bookings for stats
-      const bookingsRes = await API.get("/bookings");
-      const bookings = bookingsRes.data || [];
-      
-      // Get rooms for stats
+
       const roomsRes = await API.get("/rooms");
       const rooms = roomsRes.data || [];
 
-      // Sort events by date and get recent ones
+      let bookings = [];
+
+      // 🔒 ONLY fetch bookings if logged in
+      if (localStorage.getItem("token")) {
+        try {
+          const bookingsRes = await API.get("/bookings");
+          bookings = bookingsRes.data || [];
+        } catch {
+          // silently ignore 401
+          bookings = [];
+        }
+      }
+
       const recentEventsList = events
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 5);
 
       setRecentEvents(recentEventsList);
+
       setStats({
         totalEvents: events.length,
-        totalBookings: bookings.length,
+        totalBookings: bookings.length, // will be 0 if not logged
         totalRooms: rooms.length,
       });
+
     } catch (err) {
       setAlert({
         type: "error",
@@ -75,7 +84,7 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Stats Grid */}
+      {/* Stats */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon">🎪</div>
@@ -121,15 +130,11 @@ export default function Dashboard() {
             {recentEvents.map((event) => (
               <div key={event.id} className="card">
                 <div className="card-body">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                    <div style={{ flex: 1 }}>
-                      <h4 style={{ marginBottom: "8px" }}>{event.title}</h4>
-                      <p style={{ color: "#666", marginBottom: "8px", fontSize: "14px" }}>
-                        📅 {formatDate(event.date)}
-                      </p>
-                      <p style={{ color: "#666", fontSize: "14px" }}>
-                        {event.description || "No description"}
-                      </p>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div>
+                      <h4>{event.title}</h4>
+                      <p>📅 {formatDate(event.date)}</p>
+                      <p>{event.description || "No description"}</p>
                     </div>
                     <div style={{ fontSize: "32px" }}>🎭</div>
                   </div>

@@ -16,7 +16,7 @@ const TECH_EVENT_TYPES = [
   "Other",
 ];
 
-export default function Events({ setSelectedEvent }) {
+export default function Events({ setEventDetails, setSelectedEvent }) {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -180,11 +180,12 @@ export default function Events({ setSelectedEvent }) {
         <div className="grid">
           {filteredEvents.map((event) => (
             <EventCard
-              key={event.id}
-              event={event}
-              onBook={() => setSelectedEvent(event)}
-              isUpcoming={isUpcoming(event.date)}
-            />
+  key={event.id}
+  event={event}
+  onViewDetails={() => setEventDetails(event)}
+  onBook={() => setSelectedEvent(event)}
+  isUpcoming={isUpcoming(event.date)}
+/>
           ))}
         </div>
       )}

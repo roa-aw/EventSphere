@@ -16,6 +16,10 @@ export default function Payments() {
   }, []);
 
   const loadBookings = async () => {
+    if (!localStorage.getItem("token")) {
+  setLoading(false);
+  return;
+}
     try {
       setLoading(true);
       const res = await API.get("/bookings");

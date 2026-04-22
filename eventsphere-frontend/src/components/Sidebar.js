@@ -75,9 +75,15 @@ export default function Sidebar({ user, currentPage, onNavigate, onLogout }) {
               </p>
             </div>
           </div>
-          <button className="logout-btn" onClick={onLogout}>
-            Logout
-          </button>
+          {user ? (
+  <button className="logout-btn" onClick={onLogout}>
+    Logout
+  </button>
+) : (
+  <button className="logout-btn" onClick={() => onNavigate("login")}>
+    Login
+  </button>
+)}
         </div>
       </aside>
 

@@ -13,11 +13,13 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import API from "./services/api";
 import "./styles/global.css";
+import EventDetails from "./pages/EventDetails";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventDetails, setEventDetails] = useState(null);
   const [user, setUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
 
@@ -35,7 +37,6 @@ function App() {
       setUser(res.data);
     } catch (err) {
       console.error("Failed to load user profile:", err);
-      // Clear token if profile fetch fails (token might be invalid)
       localStorage.removeItem("token");
       setToken(null);
     } finally {
@@ -56,10 +57,6 @@ function App() {
     setSelectedEvent(null);
   };
 
-  if (!token) {
-    return <Login setToken={setToken} />;
-  }
-
   if (userLoading) {
     return (
       <div
@@ -78,31 +75,68 @@ function App() {
 
   let pageContent;
 
-  if (selectedEvent) {
-    pageContent = (
-      <Booking event={selectedEvent} onBack={() => setSelectedEvent(null)} />
-    );
-  } else if (currentPage === "dashboard") {
+
+// Event Details page
+if (eventDetails && currentPage !== "login") {
+  pageContent = (
+    <EventDetails
+      event={eventDetails}
+      onBack={() => setEventDetails(null)}
+      onBook={(event) => {
+        setEventDetails(null);
+        setSelectedEvent(event);
+      }}
+    />
+  );
+}
+
+// Booking page
+else if (selectedEvent && currentPage !== "login") {
+  pageContent = (
+    <Booking
+      event={selectedEvent}
+      onBack={() => setSelectedEvent(null)}
+      goToLogin={() => setCurrentPage("login")}
+    />
+  );
+}
+  
+  // 🔥 Login page
+  else if (currentPage === "login") {
+    pageContent = <Login setToken={setToken} />;
+  }
+  else if (currentPage === "dashboard") {
     pageContent = <Dashboard />;
-  } else if (currentPage === "events") {
-    pageContent = <Events setSelectedEvent={setSelectedEvent} />;
-  } else if (currentPage === "rooms") {
+  }
+  else if (currentPage === "events") {
+    pageContent = <Events 
+      setEventDetails={setEventDetails} 
+      setSelectedEvent={setSelectedEvent} 
+    />;
+  }
+  else if (currentPage === "rooms") {
     pageContent = <Rooms />;
-  } else if (currentPage === "bookings") {
+  }
+  else if (currentPage === "bookings") {
     pageContent = <MyBookings />;
-  } else if (currentPage === "payments") {
+  }
+  else if (currentPage === "payments") {
     pageContent = <Payments />;
-  } else if (currentPage === "profile") {
+  }
+  else if (currentPage === "profile") {
     pageContent = <Profile />;
-  } else if (currentPage === "admin") {
-    // Only show admin panel if user is admin
+  }
+  else if (currentPage === "admin") {
     if (user?.role === "Admin" || user?.role === "admin") {
       pageContent = <AdminPanel />;
     } else {
       pageContent = (
         <div className="container">
           <div className="card">
-            <div className="card-body" style={{ textAlign: "center", padding: "60px" }}>
+            <div
+              className="card-body"
+              style={{ textAlign: "center", padding: "60px" }}
+            >
               <p style={{ fontSize: "48px", marginBottom: "15px" }}>🔐</p>
               <h3>Access Denied</h3>
               <p>You don't have permission to access the admin panel.</p>

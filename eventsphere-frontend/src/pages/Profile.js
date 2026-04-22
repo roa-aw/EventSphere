@@ -18,6 +18,10 @@ export default function Profile() {
     try {
       setLoading(true);
       const res = await API.get("/users/profile");
+      if (!localStorage.getItem("token")) {
+  setLoading(false);
+  return;
+}
       setUser(res.data);
       setFormData(res.data);
       setIsAdmin(res.data?.role === "Admin" || res.data?.role === "admin");

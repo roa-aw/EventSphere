@@ -12,19 +12,25 @@ export default function MyBookings() {
   }, []);
 
   const loadBookings = async () => {
-    try {
-      setLoading(true);
-      const res = await API.get("/bookings");
-      setBookings(res.data || []);
-    } catch (err) {
-      setAlert({
-        type: "error",
-        message: err.response?.data?.message || "Failed to load bookings",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ✅ STOP if not logged in
+  if (!localStorage.getItem("token")) {
+    setLoading(false);
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const res = await API.get("/bookings");
+    setBookings(res.data || []);
+  } catch (err) {
+    setAlert({
+      type: "error",
+      message: err.response?.data?.message || "Failed to load bookings",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleCancelBooking = async (bookingId) => {
     if (!window.confirm("Are you sure you want to cancel this booking?")) {

@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import API from "../services/api";
 import Alert from "../components/Alert";
 
-export default function Booking({ event, onBack }) {
+export default function Booking({ event, onBack, goToLogin }) {
   const [seats, setSeats] = useState([]);
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +28,21 @@ export default function Booking({ event, onBack }) {
   }, [loadSeats]);
 
   const handleBook = async (seatId) => {
+    // 🔒 Check login BEFORE booking
+    if (!localStorage.getItem("token")) {
+      setAlert({
+        type: "error",
+        message: "Please login to book a seat",
+      });
+
+      // Redirect to login after a short delay
+      setTimeout(() => {
+        goToLogin();
+      }, 1000);
+
+      return;
+    }
+
     try {
       await API.post("/bookings", {
         eventId: event.id,
@@ -77,8 +92,17 @@ export default function Booking({ event, onBack }) {
       )}
 
       <div className="seats-container">
-        <h3 style={{ textAlign: "center", marginBottom: "10px" }}>Select a Seat</h3>
-        <p style={{ textAlign: "center", fontSize: "12px", color: "#999", marginBottom: "20px" }}>
+        <h3 style={{ textAlign: "center", marginBottom: "10px" }}>
+          Select a Seat
+        </h3>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: "12px",
+            color: "#999",
+            marginBottom: "20px",
+          }}
+        >
           🟢 Available | 🔴 Booked | 🟠 Selected
         </p>
 
@@ -87,7 +111,9 @@ export default function Booking({ event, onBack }) {
             <div className="spinner"></div>
           </div>
         ) : seats.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#999" }}>No seats available</p>
+          <p style={{ textAlign: "center", color: "#999" }}>
+            No seats available
+          </p>
         ) : (
           <>
             <div className="seats-grid">
@@ -121,7 +147,8 @@ export default function Booking({ event, onBack }) {
                 }}
               >
                 <p style={{ marginBottom: "15px" }}>
-                  <strong>Selected Seat:</strong> {selectedSeat.seatNumber}
+                  <strong>Selected Seat:</strong>{" "}
+                  {selectedSeat.seatNumber}
                 </p>
                 <button
                   className="btn btn-primary"
