@@ -14,4 +14,6 @@ public class Booking
     public Seat? Seat { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public string Status { get; set; } = "Pending";
 }

@@ -6,4 +6,11 @@ public class BookingResponseDTO
     public Guid EventId { get; set; }
     public Guid SeatId { get; set; }
     public DateTime CreatedAt { get; set; }
+
+    public string Status { get; set; }
+    public string EventTitle { get; set; }
+    public string RoomName { get; set; }
+
+    public string SeatNumber { get; set; } // ✅ ADD THIS
+    public DateTime BookingDate { get; set; }
 }

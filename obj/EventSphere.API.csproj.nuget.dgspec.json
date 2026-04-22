@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\roaa4\\EventSphere.API\\EventSphere.API.csproj": {}
+    "C:\\Users\\roaa4\\OneDrive\\سطح المكتب\\EventSphere.API\\EventSphere.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\roaa4\\EventSphere.API\\EventSphere.API.csproj": {
+    "C:\\Users\\roaa4\\OneDrive\\سطح المكتب\\EventSphere.API\\EventSphere.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\roaa4\\EventSphere.API\\EventSphere.API.csproj",
+        "projectUniqueName": "C:\\Users\\roaa4\\OneDrive\\سطح المكتب\\EventSphere.API\\EventSphere.API.csproj",
         "projectName": "EventSphere.API",
-        "projectPath": "C:\\Users\\roaa4\\EventSphere.API\\EventSphere.API.csproj",
+        "projectPath": "C:\\Users\\roaa4\\OneDrive\\سطح المكتب\\EventSphere.API\\EventSphere.API.csproj",
         "packagesPath": "C:\\Users\\roaa4\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\roaa4\\EventSphere.API\\obj\\",
+        "outputPath": "C:\\Users\\roaa4\\OneDrive\\سطح المكتب\\EventSphere.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\roaa4\\AppData\\Roaming\\NuGet\\NuGet.Config"

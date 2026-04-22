@@ -30,4 +30,44 @@ public class BookingsController : ControllerBase
 
         return Ok(result);
     }
+
+    [Authorize]
+[HttpGet]
+public async Task<IActionResult> GetBookings()
+{
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+    if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
+    {
+        return Unauthorized();
+    }
+
+    var userId = Guid.Parse(userIdClaim.Value);
+
+    var bookings = await _bookingService.GetUserBookings(userId);
+
+    return Ok(bookings);
+}
+
+[Authorize]
+[HttpDelete("{id}")]
+public async Task<IActionResult> CancelBooking(Guid id)
+
+{
+    Console.WriteLine("DELETE HIT: " + id);
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+    if (userIdClaim == null)
+        return Unauthorized();
+
+    var userId = Guid.Parse(userIdClaim.Value);
+
+    var result = await _bookingService.CancelBooking(userId, id);
+
+    if (!result)
+        return NotFound();
+
+    return Ok(new { message = "Booking cancelled successfully" });
+}
+
 }

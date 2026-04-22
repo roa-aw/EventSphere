@@ -109,4 +109,31 @@ public class UsersController : ControllerBase
 
         return Ok();
     }
+
+    [HttpGet("profile")]
+[Authorize]
+public async Task<IActionResult> GetProfile()
+{
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+    if (userIdClaim == null)
+        return Unauthorized();
+
+    var userId = Guid.Parse(userIdClaim.Value);
+
+    var user = await _context.Users
+        .Where(u => u.Id == userId)
+        .Select(u => new UserResponseDTO
+        {
+            Id = u.Id,
+            FullName = u.FullName,
+            Email = u.Email
+        })
+        .FirstOrDefaultAsync();
+
+    if (user == null)
+        return NotFound();
+
+    return Ok(user);
+}
 }

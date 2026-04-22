@@ -40,7 +40,11 @@ public class BookingService : IBookingService
 
         // ❌ Check if already booked
         var existingBooking = await _context.Bookings
-            .AnyAsync(b => b.EventId == request.EventId && b.SeatId == request.SeatId);
+    .AnyAsync(b =>
+        b.EventId == request.EventId &&
+        b.SeatId == request.SeatId &&
+        b.Status != "Cancelled"  
+    );
 
         if (existingBooking)
             throw new Exception("Seat already booked");
@@ -68,4 +72,46 @@ public class BookingService : IBookingService
             CreatedAt = booking.CreatedAt
         };
     }
+    public async Task<IEnumerable<BookingResponseDTO>> GetUserBookings(Guid userId)
+{
+
+    return await _context.Bookings
+        .Where(b => b.UserId == userId)
+        .Include(b => b.Event)
+        .Include(b => b.Seat)
+            .ThenInclude(s => s.Room)
+        .Select(b => new BookingResponseDTO
+        
+{
+    BookingId = b.Id,
+    EventId = b.EventId,
+    SeatId = b.SeatId,
+    CreatedAt = b.CreatedAt,
+
+    Status = b.Status,
+    EventTitle = b.Event != null ? b.Event.Title : "Unknown Event",
+    RoomName = b.Seat != null && b.Seat.Room != null
+        ? b.Seat.Room.Name
+        : "Unknown Room",
+        SeatNumber = b.Seat != null ? b.Seat.SeatNumber.ToString() : null,
+    BookingDate = b.CreatedAt
+})
+        .ToListAsync();
+    
+}
+
+public async Task<bool> CancelBooking(Guid userId, Guid bookingId)
+{
+    var booking = await _context.Bookings
+        .FirstOrDefaultAsync(b => b.Id == bookingId && b.UserId == userId);
+
+    if (booking == null)
+        return false;
+
+    booking.Status = "Cancelled";
+    await _context.SaveChangesAsync();
+    
+
+    return true;
+}
 }

@@ -14,8 +14,8 @@ public class SeatsController : ControllerBase
     {
         _context = context;
     }
-
-    [HttpGet("event/{eventId}")]
+    
+[HttpGet("event/{eventId}")]
 public async Task<IActionResult> GetSeatsByEvent(Guid eventId)
 {
     var eventEntity = await _context.Events.FindAsync(eventId);
@@ -24,16 +24,20 @@ public async Task<IActionResult> GetSeatsByEvent(Guid eventId)
         return NotFound("Event not found");
 
     var seats = await _context.Seats
-    .Where(s => s.RoomId == eventEntity.RoomId)
-    .OrderBy(s => s.SeatNumber)
-    .Select(s => new
-    {
-        s.Id,
-        s.SeatNumber,
-        IsBooked = _context.Bookings
-            .Any(b => b.SeatId == s.Id && b.EventId == eventId)
-    })
-    .ToListAsync();
+        .Where(s => s.RoomId == eventEntity.RoomId)
+        .OrderBy(s => s.SeatNumber)
+        .Select(s => new
+        {
+            s.Id,
+            s.SeatNumber,
+            IsBooked = _context.Bookings
+                .Any(b =>
+                    b.SeatId == s.Id &&
+                    b.EventId == eventId &&
+                    b.Status != "Cancelled" // ✅ FIX HERE
+                )
+        })
+        .ToListAsync();
 
     return Ok(seats);
 }
