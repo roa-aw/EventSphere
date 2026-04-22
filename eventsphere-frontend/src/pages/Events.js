@@ -4,16 +4,9 @@ import EventCard from "../components/EventCard";
 import Alert from "../components/Alert";
 
 const TECH_EVENT_TYPES = [
-  "Web Development",
-  "Mobile Development",
-  "AI & Machine Learning",
-  "Cloud Computing",
-  "DevOps",
-  "Cybersecurity",
-  "Data Science",
-  "Blockchain",
-  "IoT",
-  "Other",
+  "Conference",
+  "Concert",
+  "Workshop",
 ];
 
 export default function Events({ setEventDetails, setSelectedEvent }) {
@@ -60,13 +53,8 @@ export default function Events({ setEventDetails, setSelectedEvent }) {
       );
     }
 
-    // Event type filter (from tags or description)
-    if (eventType) {
-      filtered = filtered.filter((event) =>
-        (event.description || "").toLowerCase().includes(eventType.toLowerCase()) ||
-        (event.title || "").toLowerCase().includes(eventType.toLowerCase())
-      );
-    }
+    // Event type filter (using the dedicated type field)
+    filtered = filtered.filter((e) => !eventType || e.type === eventType);
 
     // Active filter
     if (showActive !== "all") {

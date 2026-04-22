@@ -14,8 +14,13 @@ export default function AdminPanel() {
     description: "",
     date: "",
     roomId: "",
+    type: "",
+    imageUrl: "",
   });
   const [rooms, setRooms] = useState([]);
+  const [roomName, setRoomName] = useState("");
+  const [editingEventId, setEditingEventId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
 
   useEffect(() => {
     loadData();
@@ -58,10 +63,8 @@ export default function AdminPanel() {
 
     try {
       await API.post("/events", {
-        title: eventForm.title,
-        description: eventForm.description,
+        ...eventForm,
         date: new Date(eventForm.date).toISOString(),
-        roomId: eventForm.roomId,
       });
 
       setAlert({
@@ -74,6 +77,8 @@ export default function AdminPanel() {
         description: "",
         date: "",
         roomId: "",
+        type: "",
+        imageUrl: "",
       });
       setShowEventForm(false);
       await loadData();
@@ -105,6 +110,28 @@ export default function AdminPanel() {
     }
   };
 
+  const handleUpdateEvent = async (id) => {
+    try {
+      await API.put(`/events/${id}`, {
+        title: editTitle,
+      });
+
+      setAlert({
+        type: "success",
+        message: "Event updated",
+      });
+
+      setEditingEventId(null);
+      setEditTitle("");
+      await loadData();
+    } catch {
+      setAlert({
+        type: "error",
+        message: "Failed to update event",
+      });
+    }
+  };
+
   const handleUpdateUserRole = async (userId, newRole) => {
     try {
       await API.put(`/users/${userId}`, { role: newRole });
@@ -117,6 +144,33 @@ export default function AdminPanel() {
       setAlert({
         type: "error",
         message: "Failed to update user role",
+      });
+    }
+  };
+
+  const handleCreateRoom = async () => {
+    if (!roomName) {
+      setAlert({
+        type: "error",
+        message: "Room name required",
+      });
+      return;
+    }
+
+    try {
+      await API.post("/rooms", { name: roomName });
+
+      setAlert({
+        type: "success",
+        message: "Room created successfully",
+      });
+
+      setRoomName("");
+      await loadData();
+    } catch {
+      setAlert({
+        type: "error",
+        message: "Failed to create room",
       });
     }
   };
@@ -222,6 +276,33 @@ export default function AdminPanel() {
                     </select>
                   </div>
 
+                  <div className="form-group">
+                    <label>Event Type</label>
+                    <select
+                      value={eventForm.type}
+                      onChange={(e) =>
+                        setEventForm({ ...eventForm, type: e.target.value })
+                      }
+                    >
+                      <option value="">Select type</option>
+                      <option value="Conference">Conference</option>
+                      <option value="Concert">Concert</option>
+                      <option value="Workshop">Workshop</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Image URL</label>
+                    <input
+                      type="text"
+                      placeholder="Image URL"
+                      value={eventForm.imageUrl}
+                      onChange={(e) =>
+                        setEventForm({ ...eventForm, imageUrl: e.target.value })
+                      }
+                    />
+                  </div>
+
                   <button type="submit" className="btn btn-primary">
                     Create Event
                   </button>
@@ -229,6 +310,27 @@ export default function AdminPanel() {
               </div>
             </div>
           )}
+
+          <div className="card" style={{ marginBottom: "30px" }}>
+            <div className="card-body">
+              <h3>Create Room</h3>
+
+              <input
+                type="text"
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+                placeholder="Room name"
+              />
+
+              <button
+                className="btn btn-primary"
+                onClick={handleCreateRoom}
+                style={{ marginTop: "10px" }}
+              >
+                Create Room
+              </button>
+            </div>
+          </div>
 
           {loading ? (
             <div style={{ textAlign: "center", padding: "40px" }}>
@@ -247,7 +349,38 @@ export default function AdminPanel() {
                   <div className="card-body">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
                       <div style={{ flex: 1 }}>
-                        <h4 style={{ marginBottom: "8px" }}>{event.title}</h4>
+                        {editingEventId === event.id ? (
+                          <>
+                            <input
+                              value={editTitle}
+                              onChange={(e) => setEditTitle(e.target.value)}
+                              style={{ marginBottom: "8px" }}
+                            />
+
+                            <button
+                              className="btn btn-primary"
+                              onClick={() => handleUpdateEvent(event.id)}
+                              style={{ marginRight: "10px" }}
+                            >
+                              Save
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <h4 style={{ marginBottom: "8px" }}>{event.title}</h4>
+
+                            <button
+                              className="btn btn-secondary"
+                              onClick={() => {
+                                setEditingEventId(event.id);
+                                setEditTitle(event.title);
+                              }}
+                              style={{ marginRight: "10px" }}
+                            >
+                              Edit
+                            </button>
+                          </>
+                        )}
                         <p style={{ color: "#666", fontSize: "14px", marginBottom: "8px" }}>
                           📅 {new Date(event.date).toLocaleDateString()}
                         </p>

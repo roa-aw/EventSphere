@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EventSphere.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+59a771b01b32b0324ffce779746a3e1dad590558")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+408515bae6d9a8fd6b743759a0920e198890037c")]
 [assembly: System.Reflection.AssemblyProductAttribute("EventSphere.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EventSphere.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

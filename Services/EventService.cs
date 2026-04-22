@@ -36,7 +36,8 @@ public class EventService : IEventService
             Title = dto.Title,
             Description = dto.Description,
             Date = dto.Date.ToUniversalTime(),
-            RoomId = dto.RoomId
+            RoomId = dto.RoomId,
+            Type = dto.Type
         };
 
         _context.Events.Add(ev);
@@ -49,5 +50,35 @@ public class EventService : IEventService
             Description = ev.Description,
             Date = ev.Date
         };
+    }
+
+    public async Task<bool> UpdateEvent(Guid id, EventCreateDTO dto)
+    {
+        var ev = await _context.Events.FindAsync(id);
+        if (ev == null)
+            return false;
+
+        ev.Title = dto.Title;
+        ev.Description = dto.Description;
+        ev.Date = dto.Date.ToUniversalTime();
+        ev.RoomId = dto.RoomId;
+
+        _context.Events.Update(ev);
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> DeleteEvent(Guid id)
+    {
+        var ev = await _context.Events.FindAsync(id);
+
+        if (ev == null)
+            return false;
+
+        _context.Events.Remove(ev);
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 }

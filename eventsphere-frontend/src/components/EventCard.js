@@ -12,13 +12,19 @@ export default function EventCard({ event, onBook, onViewDetails }) {
 
   return (
     <div className="card event-card">
-      <div className="event-card-image">🎪</div>
+      <div className="event-card-image">
+        {event.imageUrl ? (
+          <img src={event.imageUrl} alt={event.title} className="event-img" />
+        ) : (
+          "🎪"
+        )}
+      </div>
 
       <div className="event-card-info">
         <h3 className="event-card-title">{event.title}</h3>
 
         <p className="event-card-date">
-          {formatDate(event.eventDate)}
+          {formatDate(event.date)}
         </p>
 
         <p className="event-card-description">

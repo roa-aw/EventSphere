@@ -28,7 +28,8 @@ public class UsersController : ControllerBase
             {
                 Id = u.Id,
                 FullName = u.FullName,
-                Email = u.Email
+                Email = u.Email,
+                Role = u.Role
             })
             .ToListAsync();
 
@@ -58,7 +59,8 @@ public class UsersController : ControllerBase
             {
                 Id = u.Id,
                 FullName = u.FullName,
-                Email = u.Email
+                Email = u.Email,
+                Role = u.Role
             })
             .FirstOrDefaultAsync();
 
@@ -88,7 +90,8 @@ public class UsersController : ControllerBase
         {
             Id = user.Id,
             FullName = user.FullName,
-            Email = user.Email
+            Email = user.Email,
+            Role = user.Role
         };
 
         return Ok(response);
@@ -127,7 +130,8 @@ public async Task<IActionResult> GetProfile()
         {
             Id = u.Id,
             FullName = u.FullName,
-            Email = u.Email
+            Email = u.Email,
+            Role = u.Role
         })
         .FirstOrDefaultAsync();
 
