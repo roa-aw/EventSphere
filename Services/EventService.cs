@@ -23,7 +23,8 @@ public class EventService : IEventService
                 Id = e.Id,
                 Title = e.Title,
                 Description = e.Description,
-                Date = e.Date
+                Date = e.Date,
+                Type = e.Type
             })
             .ToListAsync();
     }
@@ -48,7 +49,8 @@ public class EventService : IEventService
             Id = ev.Id,
             Title = ev.Title,
             Description = ev.Description,
-            Date = ev.Date
+            Date = ev.Date,
+            Type = ev.Type
         };
     }
 

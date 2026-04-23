@@ -112,12 +112,12 @@ export default function Events({ setEventDetails, setSelectedEvent }) {
             <div className="form-group">
               <label>Event Type</label>
               <select value={eventType} onChange={(e) => setEventType(e.target.value)}>
-                <option value="">All Types</option>
-                {TECH_EVENT_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
+                <option value="">All Categories</option>
+                <option value="AI">AI</option>
+                <option value="Blockchain">Blockchain</option>
+                <option value="Cybersecurity">Cybersecurity</option>
+                <option value="Web Development">Web Development</option>
+                <option value="Data Science">Data Science</option>
               </select>
             </div>
 
