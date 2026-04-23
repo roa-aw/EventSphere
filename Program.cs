@@ -18,6 +18,7 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>

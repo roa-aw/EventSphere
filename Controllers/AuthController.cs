@@ -4,10 +4,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Linq;
+using Google.Apis.Auth;
+using Microsoft.EntityFrameworkCore;
 
 using EventSphere.API.Data;
 using EventSphere.API.DTOs;
 using EventSphere.API.Entities;
+using EventSphere.API.Interfaces;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -15,11 +18,13 @@ public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IConfiguration _config;
+    private readonly IJwtService _jwtService;
 
-    public AuthController(AppDbContext context, IConfiguration config)
+    public AuthController(AppDbContext context, IConfiguration config, IJwtService jwtService)
     {
         _context = context;
         _config = config;
+        _jwtService = jwtService;
     }
 
     [HttpPost("login")]
@@ -33,38 +38,38 @@ if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
     return Unauthorized("Invalid credentials");
 }
 
-        var token = GenerateJwtToken(user);
+        var token = _jwtService.GenerateToken(user);
 
         return Ok(new { token });
     }
 
-    private string GenerateJwtToken(User user)
+    [HttpPost("google")]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleAuthRequest request)
     {
-        var jwtSettings = _config.GetSection("Jwt");
+        var payload = await GoogleJsonWebSignature.ValidateAsync(request.Token);
 
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtSettings["Key"]!)
-        );
+        var email = payload.Email;
+        var name = payload.Name;
 
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        // Check if user exists
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-        var claims = new[]
+        if (user == null)
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
+            user = new User
+            {
+                Email = email,
+                FullName = name,
+                Role = "User"
+            };
 
-        var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
-            claims: claims,
-            expires: DateTime.Now.AddMinutes(
-                double.Parse(jwtSettings["DurationInMinutes"]!)
-            ),
-            signingCredentials: creds
-        );
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+        }
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        // Generate JWT (your existing method)
+        var token = _jwtService.GenerateToken(user);
+
+        return Ok(new { token });
     }
 }

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { GoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 import API from "../services/api";
 import Alert from "../components/Alert";
 
@@ -145,6 +147,46 @@ export default function Login({ setToken }) {
               {loading ? "Loading..." : "Sign Up"}
             </button>
           </form>
+
+          <div style={{ textAlign: "center", margin: "20px 0" }}>
+            <p style={{ marginBottom: "10px", color: "#666" }}>Or</p>
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                try {
+                  const res = await axios.post(
+                    "http://localhost:5036/api/auth/google",
+                    {
+                      token: credentialResponse.credential
+                    }
+                  );
+
+                  localStorage.setItem("token", res.data.token);
+                  setToken(res.data.token);
+
+                  setAlert({
+                    type: "success",
+                    message: "Login successful"
+                  });
+
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                } catch (err) {
+                  console.error(err);
+                  setAlert({
+                    type: "error",
+                    message: "Google login failed"
+                  });
+                }
+              }}
+              onError={() => {
+                setAlert({
+                  type: "error",
+                  message: "Google login failed"
+                });
+              }}
+            />
+          </div>
 
           <p style={{ textAlign: "center", marginTop: "20px", fontSize: "12px", color: "#999" }}>
             Demo: Use any email and password to sign up
