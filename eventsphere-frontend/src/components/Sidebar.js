@@ -15,13 +15,7 @@ import {
 } from "lucide-react"
 import { cn } from "../lib/utils"
 
-export default function Sidebar({
-  user,
-  currentPage,
-  onNavigate,
-  onLogout,
-}) {
-  const [isOpen, setIsOpen] = useState(window.innerWidth >= 768)
+export default function Sidebar({ user, currentPage, onNavigate, onLogout, isOpen, setIsOpen }) {
 
   const isAdmin =
     user?.role === "Admin" || user?.role === "admin"

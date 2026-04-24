@@ -24,7 +24,7 @@ function App() {
   const [eventDetails, setEventDetails] = useState(null);
   const [user, setUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
-
+const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768)
   useEffect(() => {
     if (token) {
       loadUserProfile();
@@ -173,18 +173,21 @@ function App() {
 
   return (
   <div className="flex h-screen overflow-hidden">
-
-    {/* Sidebar */}
+    
     <Sidebar
       user={user}
       onLogout={handleLogout}
       currentPage={currentPage}
       onNavigate={handleNavigate}
+      isOpen={sidebarOpen}
+      setIsOpen={setSidebarOpen}
     />
 
-    {/* Main */}
-    <div className="flex flex-col flex-1 min-h-0">
-
+    <div
+      className={`flex flex-col flex-1 transition-all duration-300 ${
+        sidebarOpen ? "lg:ml-64" : "lg:ml-20"
+      }`}
+    >
       <Header
         user={user}
         onLogout={handleLogout}
@@ -192,11 +195,12 @@ function App() {
         onNavigate={handleNavigate}
       />
 
-      {/* 🔥 THIS FIXES YOUR BUG */}
+      {/* ✅ ONLY ONE scroll container */}
       <div className="flex-1 overflow-y-auto p-6 bg-gray-100">
         {pageContent}
       </div>
 
+      <Footer />
     </div>
   </div>
 );
