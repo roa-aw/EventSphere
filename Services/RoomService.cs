@@ -62,4 +62,33 @@ public class RoomService : IRoomService
             })
             .ToListAsync();
     }
+
+public async Task<bool> DeleteRoom(Guid roomId)
+{
+    var room = await _context.Rooms
+        .Include(r => r.Seats)
+        .FirstOrDefaultAsync(r => r.Id == roomId);
+
+    if (room == null)
+        return false;
+
+    var seatIds = room.Seats.Select(s => s.Id).ToList();
+
+    // 🔥 Delete related bookings first
+    var bookings = await _context.Bookings
+        .Where(b => seatIds.Contains(b.SeatId))
+        .ToListAsync();
+
+    _context.Bookings.RemoveRange(bookings);
+
+    // 🔥 Delete seats
+    _context.Seats.RemoveRange(room.Seats);
+
+    // 🔥 Delete room
+    _context.Rooms.Remove(room);
+
+    await _context.SaveChangesAsync();
+
+    return true;
+}
 }

@@ -26,7 +26,7 @@ public class BookingService : IBookingService
         if (eventEntity == null)
             throw new Exception("Event not found");
 
-        // 🔒 Pessimistic Lock (VERY IMPORTANT)
+        // 🔒 Lock seat (prevents race conditions)
         var seat = await _context.Seats
             .FromSqlRaw("SELECT * FROM \"Seats\" WHERE \"Id\" = {0} FOR UPDATE", request.SeatId)
             .FirstOrDefaultAsync();
@@ -38,13 +38,26 @@ public class BookingService : IBookingService
         if (seat.RoomId != eventEntity.RoomId)
             throw new Exception("Seat does not belong to the event's room");
 
-        // ❌ Check if already booked
+        // 🔥 REMOVE cancelled booking (fixes UNIQUE constraint issue)
+        var cancelledBooking = await _context.Bookings
+            .FirstOrDefaultAsync(b =>
+                b.EventId == request.EventId &&
+                b.SeatId == request.SeatId &&
+                b.Status == "Cancelled"
+            );
+
+        if (cancelledBooking != null)
+        {
+            _context.Bookings.Remove(cancelledBooking);
+        }
+
+        // ❌ Check if already booked (only active bookings)
         var existingBooking = await _context.Bookings
-    .AnyAsync(b =>
-        b.EventId == request.EventId &&
-        b.SeatId == request.SeatId &&
-        b.Status != "Cancelled"  
-    );
+            .AnyAsync(b =>
+                b.EventId == request.EventId &&
+                b.SeatId == request.SeatId &&
+                b.Status != "Cancelled"
+            );
 
         if (existingBooking)
             throw new Exception("Seat already booked");
@@ -56,7 +69,8 @@ public class BookingService : IBookingService
             UserId = userId,
             EventId = request.EventId,
             SeatId = request.SeatId,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Status = "Active"
         };
 
         _context.Bookings.Add(booking);
@@ -69,49 +83,48 @@ public class BookingService : IBookingService
             BookingId = booking.Id,
             EventId = booking.EventId,
             SeatId = booking.SeatId,
-            CreatedAt = booking.CreatedAt
+            CreatedAt = booking.CreatedAt,
+            Status = booking.Status
         };
     }
+
     public async Task<IEnumerable<BookingResponseDTO>> GetUserBookings(Guid userId)
-{
+    {
+        return await _context.Bookings
+            .Where(b => b.UserId == userId)
+            .Include(b => b.Event)
+            .Include(b => b.Seat)
+                .ThenInclude(s => s.Room)
+            .Select(b => new BookingResponseDTO
+            {
+                BookingId = b.Id,
+                EventId = b.EventId,
+                SeatId = b.SeatId,
+                CreatedAt = b.CreatedAt,
+                Status = b.Status,
+                EventTitle = b.Event != null ? b.Event.Title : "Unknown Event",
+                RoomName = b.Seat != null && b.Seat.Room != null
+                    ? b.Seat.Room.Name
+                    : "Unknown Room",
+                SeatNumber = b.Seat != null ? b.Seat.SeatNumber.ToString() : null,
+                BookingDate = b.CreatedAt
+            })
+            .ToListAsync();
+    }
 
-    return await _context.Bookings
-        .Where(b => b.UserId == userId)
-        .Include(b => b.Event)
-        .Include(b => b.Seat)
-            .ThenInclude(s => s.Room)
-        .Select(b => new BookingResponseDTO
-        
-{
-    BookingId = b.Id,
-    EventId = b.EventId,
-    SeatId = b.SeatId,
-    CreatedAt = b.CreatedAt,
+    public async Task<bool> CancelBooking(Guid userId, Guid bookingId)
+    {
+        var booking = await _context.Bookings
+            .FirstOrDefaultAsync(b => b.Id == bookingId && b.UserId == userId);
 
-    Status = b.Status,
-    EventTitle = b.Event != null ? b.Event.Title : "Unknown Event",
-    RoomName = b.Seat != null && b.Seat.Room != null
-        ? b.Seat.Room.Name
-        : "Unknown Room",
-        SeatNumber = b.Seat != null ? b.Seat.SeatNumber.ToString() : null,
-    BookingDate = b.CreatedAt
-})
-        .ToListAsync();
-    
-}
+        if (booking == null)
+            return false;
 
-public async Task<bool> CancelBooking(Guid userId, Guid bookingId)
-{
-    var booking = await _context.Bookings
-        .FirstOrDefaultAsync(b => b.Id == bookingId && b.UserId == userId);
+        // ✅ Mark as cancelled (keeps history)
+        booking.Status = "Cancelled";
 
-    if (booking == null)
-        return false;
+        await _context.SaveChangesAsync();
 
-    booking.Status = "Cancelled";
-    await _context.SaveChangesAsync();
-    
-
-    return true;
-}
+        return true;
+    }
 }

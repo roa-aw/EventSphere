@@ -29,4 +29,18 @@ public class RoomsController : ControllerBase
         var result = await _service.CreateRoom(dto);
         return Ok(result);
     }
+
+
+[HttpDelete("{id}")]
+[Authorize(Roles = "Admin")]
+public async Task<IActionResult> Delete(Guid id)
+{
+    var result = await _service.DeleteRoom(id);
+
+    if (!result)
+        return NotFound();
+
+    return Ok(new { message = "Room deleted successfully" });
+}
+
 }

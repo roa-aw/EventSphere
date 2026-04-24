@@ -29,19 +29,41 @@ export default function Booking({ event, onBack, goToLogin }) {
   }, [loadSeats]);
 
   const handleBook = async (seatId) => {
-    // 🔒 Check login BEFORE booking
-    if (!localStorage.getItem("token")) {
-      setAlert({
-        type: "error",
-        message: "Please login to book a seat",
-      });
+  if (!localStorage.getItem("token")) {
+    setAlert({
+      type: "error",
+      message: "Please login to book a seat",
+    });
 
-      // Redirect to login after a short delay
-      setTimeout(() => {
-        goToLogin();
-      }, 1000);
-    }
-  };
+    setTimeout(() => {
+      goToLogin();
+    }, 1000);
+    return;
+  }
+
+  try {
+    const res = await API.post("/bookings", {
+      eventId: event.id,
+      seatId: seatId,
+    });
+
+    setAlert({
+      type: "success",
+      message: "Booking successful 🎉",
+    });
+
+    loadSeats();
+
+  } catch (err) {
+    console.error(err);
+
+    setAlert({
+      type: "error",
+      message:
+        err.response?.data?.message || "Booking failed",
+    });
+  }
+};
 
   return (
     <div className="space-y-6 p-4 md:p-6">
