@@ -14,7 +14,9 @@ import Footer from "./components/Footer";
 import API from "./services/api";
 import "./styles/global.css";
 import EventDetails from "./pages/EventDetails";
-
+// import "./App.css";
+// import "./Sidebar.css";
+// import "./index.css";
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [currentPage, setCurrentPage] = useState("dashboard");
@@ -26,6 +28,7 @@ function App() {
   useEffect(() => {
     if (token) {
       loadUserProfile();
+      setCurrentPage("dashboard"); // ✅ redirect after login
     } else {
       setUserLoading(false);
     }
@@ -48,15 +51,18 @@ function App() {
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
-    setCurrentPage("dashboard");
+    setCurrentPage("login");
     setSelectedEvent(null);
+    setEventDetails(null);
   };
 
   const handleNavigate = (page) => {
     setCurrentPage(page);
     setSelectedEvent(null);
+    setEventDetails(null);
   };
 
+  // ⏳ Loading screen
   if (userLoading) {
     return (
       <div
@@ -73,59 +79,72 @@ function App() {
     );
   }
 
+  // 🔥 LOGIN PAGE (no sidebar/header)
+  if (currentPage === "login") {
+    return <Login setToken={setToken} />;
+  }
+
   let pageContent;
 
-
-// Event Details page
-if (eventDetails && currentPage !== "login") {
-  pageContent = (
-    <EventDetails
-      event={eventDetails}
-      onBack={() => setEventDetails(null)}
-      onBook={(event) => {
-        setEventDetails(null);
-        setSelectedEvent(event);
-      }}
-    />
-  );
-}
-
-// Booking page
-else if (selectedEvent && currentPage !== "login") {
-  pageContent = (
-    <Booking
-      event={selectedEvent}
-      onBack={() => setSelectedEvent(null)}
-      goToLogin={() => setCurrentPage("login")}
-    />
-  );
-}
-  
-  // 🔥 Login page
-  else if (currentPage === "login") {
-    pageContent = <Login setToken={setToken} />;
+  // ✅ Proper routing system
+  if (currentPage === "eventDetails") {
+    pageContent = (
+      <EventDetails
+        event={eventDetails}
+        onBack={() => setCurrentPage("events")}
+        onBook={(event) => {
+          setSelectedEvent(event);
+          setCurrentPage("booking");
+        }}
+      />
+    );
   }
+
+  else if (currentPage === "booking") {
+    pageContent = (
+      <Booking
+        event={selectedEvent}
+        onBack={() => setCurrentPage("events")}
+        goToLogin={() => setCurrentPage("login")}
+      />
+    );
+  }
+
   else if (currentPage === "dashboard") {
     pageContent = <Dashboard />;
   }
+
   else if (currentPage === "events") {
-    pageContent = <Events 
-      setEventDetails={setEventDetails} 
-      setSelectedEvent={setSelectedEvent} 
-    />;
+    pageContent = (
+      <Events
+        setEventDetails={(event) => {
+          setEventDetails(event);
+          setCurrentPage("eventDetails");
+        }}
+        setSelectedEvent={(event) => {
+          setSelectedEvent(event);
+          setCurrentPage("booking");
+        }}
+      />
+    );
   }
+
   else if (currentPage === "rooms") {
     pageContent = <Rooms />;
   }
+
   else if (currentPage === "bookings") {
     pageContent = <MyBookings />;
   }
+
   else if (currentPage === "payments") {
     pageContent = <Payments />;
   }
+
   else if (currentPage === "profile") {
     pageContent = <Profile />;
   }
+
   else if (currentPage === "admin") {
     if (user?.role === "Admin" || user?.role === "admin") {
       pageContent = <AdminPanel />;
@@ -147,31 +166,39 @@ else if (selectedEvent && currentPage !== "login") {
     }
   }
 
+  // ✅ fallback safety
+  else {
+    pageContent = <Dashboard />;
+  }
+
   return (
-    <div className="main-layout">
-      <Sidebar
+  <div className="flex h-screen overflow-hidden">
+
+    {/* Sidebar */}
+    <Sidebar
+      user={user}
+      onLogout={handleLogout}
+      currentPage={currentPage}
+      onNavigate={handleNavigate}
+    />
+
+    {/* Main */}
+    <div className="flex flex-col flex-1 min-h-0">
+
+      <Header
         user={user}
         onLogout={handleLogout}
         currentPage={currentPage}
         onNavigate={handleNavigate}
       />
 
-      <main style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <Header
-          user={user}
-          onLogout={handleLogout}
-          currentPage={currentPage}
-          onNavigate={handleNavigate}
-        />
+      {/* 🔥 THIS FIXES YOUR BUG */}
+      <div className="flex-1 overflow-y-auto p-6 bg-gray-100">
+        {pageContent}
+      </div>
 
-        <div style={{ flex: 1, overflowY: "auto" }}>
-          {pageContent}
-        </div>
-
-        <Footer />
-      </main>
     </div>
-  );
+  </div>
+);
 }
-
 export default App;

@@ -3,6 +3,7 @@ import API from "../services/api";
 import Alert from "../components/Alert";
 
 export default function Booking({ event, onBack, goToLogin }) {
+  
   const [seats, setSeats] = useState([]);
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,50 +40,21 @@ export default function Booking({ event, onBack, goToLogin }) {
       setTimeout(() => {
         goToLogin();
       }, 1000);
-
-      return;
-    }
-
-    try {
-      await API.post("/bookings", {
-        eventId: event.id,
-        seatId: seatId,
-      });
-
-      setAlert({
-        type: "success",
-        message: "Booking successful!",
-      });
-
-      setSelectedSeat(null);
-      await loadSeats();
-
-      setTimeout(() => {
-        onBack();
-      }, 1500);
-    } catch (err) {
-      setAlert({
-        type: "error",
-        message: err.response?.data?.message || "Booking failed",
-      });
     }
   };
 
   return (
-    <div className="container">
+    <div className="space-y-6 p-4 md:p-6">
+
+      {/* BACK */}
       <button
-        className="btn btn-secondary"
         onClick={onBack}
-        style={{ marginBottom: "20px" }}
+        className="text-gray-500 hover:text-black flex items-center gap-2"
       >
         ← Back to Events
       </button>
 
-      <h2>{event.title}</h2>
-      <p style={{ color: "#666", marginBottom: "20px" }}>
-        {event.description}
-      </p>
-
+      {/* ALERT */}
       {alert && (
         <Alert
           type={alert.type}
@@ -91,76 +63,108 @@ export default function Booking({ event, onBack, goToLogin }) {
         />
       )}
 
-      <div className="seats-container">
-        <h3 style={{ textAlign: "center", marginBottom: "10px" }}>
-          Select a Seat
-        </h3>
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: "12px",
-            color: "#999",
-            marginBottom: "20px",
-          }}
-        >
-          🟢 Available | 🔴 Booked | 🟠 Selected
-        </p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {loading ? (
-          <div style={{ textAlign: "center", padding: "40px" }}>
-            <div className="spinner"></div>
+        {/* LEFT: SEATS */}
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-6 space-y-6">
+
+          <div className="text-center">
+            <h3 className="font-semibold text-lg">Select Your Seat</h3>
+            <p className="text-sm text-gray-500">{event.title}</p>
           </div>
-        ) : seats.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#999" }}>
-            No seats available
-          </p>
-        ) : (
-          <>
-            <div className="seats-grid">
-              {seats.map((seat) => (
-                <button
-                  key={seat.id}
-                  className={`seat ${seat.isBooked ? "booked" : ""} ${
-                    selectedSeat?.id === seat.id ? "selected" : ""
-                  }`}
-                  onClick={() => !seat.isBooked && setSelectedSeat(seat)}
-                  disabled={seat.isBooked}
-                  title={
-                    seat.isBooked
-                      ? "This seat is already booked"
-                      : `Seat ${seat.seatNumber}`
-                  }
-                >
-                  {seat.seatNumber}
-                </button>
-              ))}
-            </div>
 
-            {selectedSeat && (
-              <div
-                style={{
-                  marginTop: "30px",
-                  padding: "20px",
-                  backgroundColor: "#f9f9f9",
-                  borderRadius: "4px",
-                  textAlign: "center",
-                }}
-              >
-                <p style={{ marginBottom: "15px" }}>
-                  <strong>Selected Seat:</strong>{" "}
-                  {selectedSeat.seatNumber}
-                </p>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleBook(selectedSeat.id)}
-                >
-                  Confirm Booking
-                </button>
-              </div>
+          {/* SCREEN */}
+          <div className="text-center">
+            <div className="w-3/4 h-2 mx-auto bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full" />
+            <p className="text-sm text-gray-400 mt-2">Stage / Screen</p>
+          </div>
+
+          {/* GRID */}
+          {loading ? (
+            <div className="flex justify-center py-10">
+              <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+            </div>
+          ) : seats.length === 0 ? (
+            <p className="text-center text-gray-400">
+              No seats available
+            </p>
+          ) : (
+            <div className="grid grid-cols-6 gap-2 justify-center">
+              {seats.map((seat) => {
+                const isBooked = seat.isBooked
+                const isSelected = selectedSeat?.id === seat.id
+
+                return (
+                  <button
+                    key={seat.id}
+                    onClick={() => !isBooked && setSelectedSeat(seat)}
+                    disabled={isBooked}
+                    className={`
+                      w-10 h-10 rounded-md text-sm font-medium
+                      ${isBooked
+                        ? "bg-red-400 text-white cursor-not-allowed"
+                        : isSelected
+                        ? "bg-orange-400 text-white"
+                        : "bg-green-200 hover:bg-green-300"
+                      }
+                    `}
+                  >
+                    {seat.seatNumber}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/* LEGEND */}
+          <div className="flex justify-center gap-6 pt-4 border-t text-sm text-gray-500">
+            <span>🟢 Available</span>
+            <span>🔴 Booked</span>
+            <span>🟠 Selected</span>
+          </div>
+        </div>
+
+        {/* RIGHT: SUMMARY */}
+        <div className="bg-white rounded-xl shadow-md p-6 space-y-4 h-fit sticky top-24">
+
+          <h3 className="font-semibold text-lg">Booking Summary</h3>
+
+          <div>
+            <p className="text-sm text-gray-500">Event</p>
+            <p className="font-medium">{event.title}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-500">Selected Seat</p>
+            {selectedSeat ? (
+              <span className="inline-block px-2 py-1 bg-orange-100 text-orange-700 rounded text-sm">
+                {selectedSeat.seatNumber}
+              </span>
+            ) : (
+              <p className="text-gray-400 text-sm">
+                No seat selected
+              </p>
             )}
-          </>
-        )}
+          </div>
+
+          <div className="pt-4 border-t">
+            <button
+              onClick={() => handleBook(selectedSeat?.id)}
+              disabled={!selectedSeat}
+              className="w-full py-2 rounded-md text-white bg-gradient-to-r from-violet-600 to-indigo-600 disabled:opacity-50"
+            >
+              Confirm Booking
+            </button>
+
+            {!selectedSeat && (
+              <p className="text-xs text-gray-400 text-center mt-2">
+                Select a seat to continue
+              </p>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
-  );
+  )
 }

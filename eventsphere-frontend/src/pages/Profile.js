@@ -1,69 +1,74 @@
-import { useEffect, useState } from "react";
-import API from "../services/api";
-import Alert from "../components/Alert";
+import { useEffect, useState } from "react"
+import API from "../services/api"
+import Alert from "../components/Alert"
+import { User, Shield } from "lucide-react"
 
 export default function Profile() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [alert, setAlert] = useState(null);
-  const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({});
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [alert, setAlert] = useState(null)
+  const [editing, setEditing] = useState(false)
+  const [formData, setFormData] = useState({})
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    loadUserProfile();
-  }, []);
+    loadUserProfile()
+  }, [])
 
   const loadUserProfile = async () => {
-    try {
-      setLoading(true);
-      const res = await API.get("/users/profile");
-      if (!localStorage.getItem("token")) {
-  setLoading(false);
-  return;
-}
-      setUser(res.data);
-      setFormData(res.data);
-      setIsAdmin(res.data?.role === "Admin" || res.data?.role === "admin");
-    } catch (err) {
-      setAlert({
-        type: "error",
-        message: "Failed to load profile",
-      });
-    } finally {
-      setLoading(false);
+    if (!localStorage.getItem("token")) {
+      setLoading(false)
+      return
     }
-  };
+
+    try {
+      setLoading(true)
+      const res = await API.get("/users/profile")
+      setUser(res.data)
+      setFormData(res.data)
+      setIsAdmin(res.data?.role?.toLowerCase() === "admin")
+    } catch {
+      setAlert({ type: "error", message: "Failed to load profile" })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleUpdate = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
+
     try {
-      await API.put(`/users/${user.id}`, formData);
-      setUser(formData);
-      setEditing(false);
+      await API.put(`/users/${user.id}`, formData)
+      setUser(formData)
+      setEditing(false)
       setAlert({
         type: "success",
         message: "Profile updated successfully",
-      });
+      })
     } catch (err) {
       setAlert({
         type: "error",
-        message: err.response?.data?.message || "Failed to update profile",
-      });
+        message: err.response?.data?.message || "Update failed",
+      })
     }
-  };
+  }
 
   if (loading) {
     return (
-      <div className="container" style={{ textAlign: "center", padding: "40px" }}>
-        <div className="spinner"></div>
+      <div className="flex justify-center py-16">
+        <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
       </div>
-    );
+    )
   }
 
   return (
-    <div className="container">
-      <h2>👤 User Profile</h2>
+    <div className="space-y-6 p-4 md:p-6 max-w-4xl">
+
+      {/* HEADER */}
+      <div>
+        <h1 className="text-2xl font-bold">Profile</h1>
+        <p className="text-gray-500">Manage your account</p>
+      </div>
 
       {alert && (
         <Alert
@@ -73,146 +78,119 @@ export default function Profile() {
         />
       )}
 
-      <div className="grid" style={{ gridTemplateColumns: "300px 1fr", gap: "30px" }}>
-        {/* Profile Card */}
-        <div className="card">
-          <div className="card-body" style={{ textAlign: "center" }}>
-            <div
-              style={{
-                width: "100px",
-                height: "100px",
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                fontSize: "48px",
-                margin: "0 auto 20px",
-              }}
-            >
-              {user?.fullName?.charAt(0)?.toUpperCase() || "U"}
-            </div>
-            <h3 style={{ marginBottom: "5px" }}>{user?.fullName}</h3>
-            <p style={{ color: "#999", marginBottom: "20px" }}>
-              {isAdmin ? "🔑 Admin" : "👤 User"}
-            </p>
-            <p style={{ color: "#999", fontSize: "12px" }}>
-              Member since{" "}
-              {user?.createdAt
-                ? new Date(user.createdAt).toLocaleDateString()
-                : "N/A"}
-            </p>
-          </div>
+      {/* PROFILE CARD */}
+      <div className="bg-white rounded-xl shadow-md p-6 flex items-center gap-6">
+
+        {/* Avatar */}
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
+          {user?.fullName?.charAt(0)?.toUpperCase() || "U"}
         </div>
 
-        {/* Edit Form */}
-        <div className="card">
-          <div className="card-header">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h3>Profile Information</h3>
-              {!editing && (
-                <button className="btn btn-primary" onClick={() => setEditing(true)}>
-                  Edit Profile
-                </button>
-              )}
-            </div>
-          </div>
+        {/* Info */}
+        <div>
+          <h2 className="text-lg font-semibold">{user?.fullName}</h2>
+          <p className="text-gray-500">{user?.email}</p>
 
-          <div className="card-body">
-            {!editing ? (
-              <div>
-                <div style={{ marginBottom: "20px" }}>
-                  <label style={{ color: "#999", fontSize: "12px" }}>
-                    FULL NAME
-                  </label>
-                  <p style={{ margin: "8px 0 0 0", fontSize: "16px" }}>
-                    {user?.fullName}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: "20px" }}>
-                  <label style={{ color: "#999", fontSize: "12px" }}>
-                    EMAIL
-                  </label>
-                  <p style={{ margin: "8px 0 0 0", fontSize: "16px" }}>
-                    {user?.email}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: "20px" }}>
-                  <label style={{ color: "#999", fontSize: "12px" }}>
-                    ROLE
-                  </label>
-                  <p style={{ margin: "8px 0 0 0", fontSize: "16px" }}>
-                    {user?.role || "User"}
-                  </p>
-                </div>
-
-                {isAdmin && (
-                  <div
-                    style={{
-                      marginTop: "20px",
-                      padding: "15px",
-                      backgroundColor: "#f0f0ff",
-                      borderRadius: "4px",
-                      borderLeft: "4px solid #667eea",
-                    }}
-                  >
-                    <p style={{ margin: 0, color: "#667eea", fontWeight: "500" }}>
-                      ✓ You have admin access
-                    </p>
-                    <p style={{ margin: "5px 0 0 0", fontSize: "12px", color: "#999" }}>
-                      You can manage events, rooms, and users from the Admin Panel
-                    </p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <form onSubmit={handleUpdate}>
-                <div className="form-group">
-                  <label>Full Name</label>
-                  <input
-                    type="text"
-                    value={formData.fullName || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, fullName: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Email</label>
-                  <input
-                    type="email"
-                    value={formData.email || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                    Save Changes
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => {
-                      setEditing(false);
-                      setFormData(user);
-                    }}
-                    style={{ flex: 1 }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
+          <span className="inline-flex items-center gap-1 mt-2 px-2 py-1 rounded text-xs bg-violet-100 text-violet-700">
+            <Shield className="w-3 h-3" />
+            {user?.role || "User"}
+          </span>
         </div>
       </div>
+
+      {/* EDIT CARD */}
+      <div className="bg-white rounded-xl shadow-md p-6">
+
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-semibold flex items-center gap-2">
+            <User className="w-5 h-5 text-violet-600" />
+            Profile Information
+          </h3>
+
+          {!editing && (
+            <button
+              onClick={() => setEditing(true)}
+              className="bg-violet-600 text-white px-4 py-2 rounded hover:bg-violet-700"
+            >
+              Edit
+            </button>
+          )}
+        </div>
+
+        {!editing ? (
+          <div className="space-y-4 text-sm">
+
+            <div>
+              <p className="text-gray-400">Full Name</p>
+              <p className="font-medium">{user?.fullName}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-400">Email</p>
+              <p className="font-medium">{user?.email}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-400">Role</p>
+              <p className="font-medium">{user?.role}</p>
+            </div>
+
+            {isAdmin && (
+              <div className="mt-4 p-3 bg-violet-50 border-l-4 border-violet-600 rounded">
+                <p className="text-violet-700 text-sm font-medium">
+                  You have admin access
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <form onSubmit={handleUpdate} className="space-y-4">
+
+            <div>
+              <label className="text-sm text-gray-500">Full Name</label>
+              <input
+                className="w-full mt-1 border rounded px-3 py-2"
+                value={formData.fullName || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, fullName: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-gray-500">Email</label>
+              <input
+                className="w-full mt-1 border rounded px-3 py-2"
+                value={formData.email || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                type="submit"
+                className="flex-1 bg-violet-600 text-white py-2 rounded hover:bg-violet-700"
+              >
+                Save
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEditing(false)
+                  setFormData(user)
+                }}
+                className="flex-1 border py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+
+          </form>
+        )}
+      </div>
     </div>
-  );
+  )
 }

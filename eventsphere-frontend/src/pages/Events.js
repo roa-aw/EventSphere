@@ -77,14 +77,26 @@ export default function Events({ setEventDetails, setSelectedEvent }) {
   };
 
   return (
-    <div className="container">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
-        <h2>📅 Events</h2>
-        <button className="btn btn-primary" onClick={loadEvents}>
-          🔄 Refresh
+    <div className="space-y-6 p-4 md:p-6">
+
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Events</h1>
+          <p className="text-gray-500">
+            Discover and book events
+          </p>
+        </div>
+
+        <button
+          onClick={loadEvents}
+          className="px-4 py-2 rounded-md bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
+        >
+          Refresh
         </button>
       </div>
 
+      {/* ALERT */}
       {alert && (
         <Alert
           type={alert.type}
@@ -93,94 +105,90 @@ export default function Events({ setEventDetails, setSelectedEvent }) {
         />
       )}
 
-      {/* Filters */}
-      <div className="filters-card card" style={{ marginBottom: "30px" }}>
-        <div className="card-body">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px" }}>
-            {/* Search */}
-            <div className="form-group">
-              <label>Search Events</label>
-              <input
-                type="text"
-                placeholder="Search by name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+      {/* FILTERS */}
+      <div className="bg-white rounded-xl shadow-md p-5 space-y-4">
 
-            {/* Event Type Filter */}
-            <div className="form-group">
-              <label>Event Type</label>
-              <select value={eventType} onChange={(e) => setEventType(e.target.value)}>
-                <option value="">All Categories</option>
-                <option value="AI">AI</option>
-                <option value="Blockchain">Blockchain</option>
-                <option value="Cybersecurity">Cybersecurity</option>
-                <option value="Web Development">Web Development</option>
-                <option value="Data Science">Data Science</option>
-              </select>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-            {/* Active Filter */}
-            <div className="form-group">
-              <label>Event Status</label>
-              <select value={showActive} onChange={(e) => setShowActive(e.target.value)}>
-                <option value="all">All Events</option>
-                <option value="active">Upcoming</option>
-                <option value="past">Past Events</option>
-              </select>
-            </div>
-          </div>
+          {/* SEARCH */}
+          <input
+            type="text"
+            placeholder="Search events..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-3 py-2 border rounded-md w-full"
+          />
 
-          {(searchTerm || eventType || showActive !== "all") && (
-            <div style={{ marginTop: "15px" }}>
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  setSearchTerm("");
-                  setEventType("");
-                  setShowActive("all");
-                }}
-              >
-                Clear Filters
-              </button>
-            </div>
-          )}
+          {/* TYPE */}
+          <select
+            value={eventType}
+            onChange={(e) => setEventType(e.target.value)}
+            className="px-3 py-2 border rounded-md w-full"
+          >
+            <option value="">All Categories</option>
+            <option value="AI">AI</option>
+            <option value="Blockchain">Blockchain</option>
+            <option value="Cybersecurity">Cybersecurity</option>
+            <option value="Web Development">Web Development</option>
+            <option value="Data Science">Data Science</option>
+          </select>
+
+          {/* STATUS */}
+          <select
+            value={showActive}
+            onChange={(e) => setShowActive(e.target.value)}
+            className="px-3 py-2 border rounded-md w-full"
+          >
+            <option value="all">All Events</option>
+            <option value="active">Upcoming</option>
+            <option value="past">Past Events</option>
+          </select>
         </div>
+
+        {/* CLEAR */}
+        {(searchTerm || eventType || showActive !== "all") && (
+          <button
+            onClick={() => {
+              setSearchTerm("")
+              setEventType("")
+              setShowActive("all")
+            }}
+            className="text-sm text-violet-600 hover:underline"
+          >
+            Clear filters
+          </button>
+        )}
       </div>
 
-      {/* Events Grid */}
+      {/* CONTENT */}
       {loading ? (
-        <div style={{ textAlign: "center", padding: "40px" }}>
-          <div className="spinner"></div>
+        <div className="flex justify-center py-10">
+          <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
         </div>
       ) : filteredEvents.length === 0 ? (
-        <div className="card">
-          <div className="card-body" style={{ textAlign: "center", padding: "40px" }}>
-            <p>
-              {events.length === 0
-                ? "No events available yet"
-                : "No events match your filters"}
-            </p>
-          </div>
+        <div className="text-center py-16 text-gray-400">
+          {events.length === 0
+            ? "No events available yet"
+            : "No events match your filters"}
         </div>
       ) : (
-        <div className="grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredEvents.map((event) => (
             <EventCard
-  key={event.id}
-  event={event}
-  onViewDetails={() => setEventDetails(event)}
-  onBook={() => setSelectedEvent(event)}
-  isUpcoming={isUpcoming(event.date)}
-/>
+              key={event.id}
+              event={event}
+              onViewDetails={() => setEventDetails(event)}
+              onBook={() => setSelectedEvent(event)}
+              isUpcoming={isUpcoming(event.date)}
+            />
           ))}
         </div>
       )}
 
-      <p style={{ marginTop: "30px", textAlign: "center", color: "#999", fontSize: "14px" }}>
+      {/* FOOTER */}
+      <p className="text-center text-sm text-gray-400">
         Showing {filteredEvents.length} of {events.length} events
       </p>
     </div>
-  );
+  )
 }

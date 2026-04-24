@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
 import Alert from "../components/Alert";
+import { cn } from "../lib/utils";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("events");
@@ -176,8 +177,11 @@ export default function AdminPanel() {
   };
 
   return (
-    <div className="container">
-      <h2>Admin Panel</h2>
+    <div className="space-y-6 p-4 md:p-6">
+      <div>
+        <h1 className="text-2xl font-bold">Admin Panel</h1>
+        <p className="text-gray-500">Manage events and users</p>
+      </div>
 
       {alert && (
         <Alert
@@ -188,24 +192,29 @@ export default function AdminPanel() {
       )}
 
       {/* Tabs */}
-      <div className="tabs" style={{ marginBottom: "30px" }}>
+      <div className="flex gap-2 bg-gray-100 p-1 rounded-lg w-fit">
         <button
-          className={`tab ${activeTab === "events" ? "active" : ""}`}
-          onClick={() => {
-            setActiveTab("events");
-            loadData();
-          }}
+          onClick={() => setActiveTab("events")}
+          className={cn(
+            "px-4 py-2 rounded-md text-sm",
+            activeTab === "events"
+              ? "bg-white shadow text-black"
+              : "text-gray-500"
+          )}
         >
-          📅 Events Management
+          Events
         </button>
+
         <button
-          className={`tab ${activeTab === "users" ? "active" : ""}`}
-          onClick={() => {
-            setActiveTab("users");
-            loadData();
-          }}
+          onClick={() => setActiveTab("users")}
+          className={cn(
+            "px-4 py-2 rounded-md text-sm",
+            activeTab === "users"
+              ? "bg-white shadow text-black"
+              : "text-gray-500"
+          )}
         >
-          👥 User Management
+          Users
         </button>
       </div>
 
@@ -213,18 +222,17 @@ export default function AdminPanel() {
       {activeTab === "events" && (
         <div>
           <button
-            className="btn btn-primary"
+            className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-md"
             onClick={() => setShowEventForm(!showEventForm)}
-            style={{ marginBottom: "20px" }}
           >
             {showEventForm ? "Cancel" : "+ Create Event"}
           </button>
 
-          {showEventForm && (
-            <div className="card" style={{ marginBottom: "30px" }}>
-              <div className="card-body">
+          <div className="space-y-6">
+            {showEventForm && (
+              <div className="bg-white rounded-xl shadow-md p-5">
                 <form onSubmit={handleCreateEvent}>
-                  <div className="form-group">
+                  <div className="space-y-2">
                     <label>Event Title</label>
                     <input
                       type="text"
@@ -236,7 +244,7 @@ export default function AdminPanel() {
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="space-y-2">
                     <label>Description</label>
                     <textarea
                       value={eventForm.description}
@@ -248,7 +256,7 @@ export default function AdminPanel() {
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="space-y-2">
                     <label>Date & Time</label>
                     <input
                       type="datetime-local"
@@ -259,7 +267,7 @@ export default function AdminPanel() {
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="space-y-2">
                     <label>Room</label>
                     <select
                       value={eventForm.roomId}
@@ -276,7 +284,7 @@ export default function AdminPanel() {
                     </select>
                   </div>
 
-                  <div className="form-group">
+                  <div className="space-y-2">
                     <label>Event Type</label>
                     <select
                       value={eventForm.type}
@@ -291,7 +299,7 @@ export default function AdminPanel() {
                     </select>
                   </div>
 
-                  <div className="form-group">
+                  <div className="space-y-2">
                     <label>Image URL</label>
                     <input
                       type="text"
@@ -303,103 +311,96 @@ export default function AdminPanel() {
                     />
                   </div>
 
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-2 rounded-md">
                     Create Event
                   </button>
                 </form>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="card" style={{ marginBottom: "30px" }}>
-            <div className="card-body">
-              <h3>Create Room</h3>
+          <div className="bg-white rounded-xl shadow-md p-5">
+            <h3>Create Room</h3>
 
-              <input
-                type="text"
-                value={roomName}
-                onChange={(e) => setRoomName(e.target.value)}
-                placeholder="Room name"
-              />
+            <input
+              type="text"
+              value={roomName}
+              onChange={(e) => setRoomName(e.target.value)}
+              placeholder="Room name"
+            />
 
-              <button
-                className="btn btn-primary"
-                onClick={handleCreateRoom}
-                style={{ marginTop: "10px" }}
-              >
-                Create Room
-              </button>
-            </div>
+            <button
+              className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-2 rounded-md"
+              onClick={handleCreateRoom}
+            >
+              Create Room
+            </button>
           </div>
 
           {loading ? (
-            <div style={{ textAlign: "center", padding: "40px" }}>
-              <div className="spinner"></div>
-            </div>
+            <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin mx-auto" />
           ) : events.length === 0 ? (
-            <div className="card">
-              <div className="card-body" style={{ textAlign: "center", padding: "40px" }}>
-                <p>No events yet</p>
-              </div>
+            <div className="bg-white rounded-xl shadow-md p-5 text-center">
+              <p>No events yet</p>
             </div>
           ) : (
-            <div className="grid" style={{ gridTemplateColumns: "1fr" }}>
+            <div className="space-y-3">
               {events.map((event) => (
-                <div key={event.id} className="card">
-                  <div className="card-body">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                      <div style={{ flex: 1 }}>
-                        {editingEventId === event.id ? (
-                          <>
-                            <input
-                              value={editTitle}
-                              onChange={(e) => setEditTitle(e.target.value)}
-                              style={{ marginBottom: "8px" }}
-                            />
+                <div
+                  key={event.id}
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+                >
+                  <div className="flex-1">
+                    {editingEventId === event.id ? (
+                      <>
+                        <input
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          className="mb-2"
+                        />
+                        <button
+                          onClick={() => handleUpdateEvent(event.id)}
+                          className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
+                        >
+                          Save
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <h4 className="font-medium">{event.title}</h4>
+                        <button
+                          onClick={() => {
+                            setEditingEventId(event.id)
+                            setEditTitle(event.title)
+                          }}
+                          className="px-3 py-1 text-sm border rounded hover:bg-gray-100 mt-1"
+                        >
+                          Edit
+                        </button>
+                      </>
+                    )}
 
-                            <button
-                              className="btn btn-primary"
-                              onClick={() => handleUpdateEvent(event.id)}
-                              style={{ marginRight: "10px" }}
-                            >
-                              Save
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <h4 style={{ marginBottom: "8px" }}>{event.title}</h4>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {new Date(event.date).toLocaleDateString()}
+                    </p>
 
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => {
-                                setEditingEventId(event.id);
-                                setEditTitle(event.title);
-                              }}
-                              style={{ marginRight: "10px" }}
-                            >
-                              Edit
-                            </button>
-                          </>
-                        )}
-                        <p style={{ color: "#666", fontSize: "14px", marginBottom: "8px" }}>
-                          📅 {new Date(event.date).toLocaleDateString()}
-                        </p>
-                        <p style={{ color: "#666", fontSize: "14px" }}>
-                          {event.description || "No description"}
-                        </p>
-                      </div>
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => handleDeleteEvent(event.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    <p className="text-sm text-gray-500">
+                      {event.description || "No description"}
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleDeleteEvent(event.id)}
+                      className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
           )}
+          </div>
         </div>
       )}
 
@@ -407,42 +408,34 @@ export default function AdminPanel() {
       {activeTab === "users" && (
         <div>
           {loading ? (
-            <div style={{ textAlign: "center", padding: "40px" }}>
-              <div className="spinner"></div>
-            </div>
+            <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin mx-auto" />
           ) : users.length === 0 ? (
-            <div className="card">
-              <div className="card-body" style={{ textAlign: "center", padding: "40px" }}>
-                <p>No users found</p>
-              </div>
+            <div className="bg-white rounded-xl shadow-md p-5 text-center">
+              <p>No users found</p>
             </div>
           ) : (
-            <div className="grid" style={{ gridTemplateColumns: "1fr" }}>
+            <div className="space-y-3">
               {users.map((user) => (
-                <div key={user.id} className="card">
-                  <div className="card-body">
-                    <h4 style={{ marginBottom: "8px" }}>{user.fullName}</h4>
-                    <p style={{ color: "#666", marginBottom: "15px" }}>
-                      {user.email}
-                    </p>
-
-                    <div style={{ display: "flex", gap: "10px" }}>
-                      <select
-                        value={user.role || "User"}
-                        onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
-                        style={{
-                          flex: 1,
-                          padding: "8px",
-                          border: "1px solid #ddd",
-                          borderRadius: "4px",
-                        }}
-                      >
-                        <option value="User">User</option>
-                        <option value="Admin">Admin</option>
-                        <option value="EventOrganizer">Event Organizer</option>
-                      </select>
-                    </div>
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-50"
+                >
+                  <div>
+                    <p className="font-medium">{user.fullName}</p>
+                    <p className="text-sm text-gray-500">{user.email}</p>
                   </div>
+
+                  <select
+                    value={user.role || "User"}
+                    onChange={(e) =>
+                      handleUpdateUserRole(user.id, e.target.value)
+                    }
+                    className="px-3 py-1 border rounded"
+                  >
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                    <option value="EventOrganizer">Organizer</option>
+                  </select>
                 </div>
               ))}
             </div>

@@ -1,72 +1,74 @@
-import { useEffect, useState } from "react";
-import API from "../services/api";
-import Alert from "../components/Alert";
+import { useEffect, useState } from "react"
+import { Calendar, MapPin, Armchair } from "lucide-react"
+import API from "../services/api"
+import Alert from "../components/Alert"
 
 export default function MyBookings() {
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [alert, setAlert] = useState(null);
+  const [bookings, setBookings] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [alert, setAlert] = useState(null)
 
   useEffect(() => {
-    loadBookings();
-  }, []);
+    loadBookings()
+  }, [])
 
   const loadBookings = async () => {
-  // ✅ STOP if not logged in
-  if (!localStorage.getItem("token")) {
-    setLoading(false);
-    return;
-  }
-
-  try {
-    setLoading(true);
-    const res = await API.get("/bookings");
-    setBookings(res.data || []);
-  } catch (err) {
-    setAlert({
-      type: "error",
-      message: err.response?.data?.message || "Failed to load bookings",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
-  const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) {
-      return;
+    if (!localStorage.getItem("token")) {
+      setLoading(false)
+      return
     }
 
     try {
-      await API.delete(`/bookings/${bookingId}`);
+      setLoading(true)
+      const res = await API.get("/bookings")
+      setBookings(res.data || [])
+    } catch (err) {
       setAlert({
-        type: "success",
-        message: "Booking cancelled successfully",
-      });
-      await loadBookings();
+        type: "error",
+        message: err.response?.data?.message || "Failed to load bookings",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancelBooking = async (bookingId) => {
+    if (!window.confirm("Cancel this booking?")) return
+
+    try {
+      await API.delete(`/bookings/${bookingId}`)
+      setAlert({ type: "success", message: "Booking cancelled" })
+      await loadBookings()
     } catch (err) {
       setAlert({
         type: "error",
         message: err.response?.data?.message || "Failed to cancel booking",
-      });
+      })
     }
-  };
+  }
 
-  // 🎨 Status styling
   const getStatusStyle = (status) => {
     switch (status) {
       case "Confirmed":
-        return { backgroundColor: "#e8f5e9", color: "#2e7d32" };
+        return "bg-green-100 text-green-700"
       case "Cancelled":
-        return { backgroundColor: "#ffebee", color: "#c62828" };
+        return "bg-red-100 text-red-700"
       default:
-        return { backgroundColor: "#fff3e0", color: "#e65100" };
+        return "bg-amber-100 text-amber-700"
     }
-  };
+  }
+
+  const activeBookings = bookings.filter((b) => b.status !== "Cancelled")
+  const cancelledBookings = bookings.filter((b) => b.status === "Cancelled")
 
   return (
-    <div className="container">
-      <h2>My Bookings</h2>
+    <div className="space-y-8 p-4 md:p-6">
+
+      {/* HEADER */}
+      <div>
+        <h1 className="text-2xl font-bold">My Bookings</h1>
+        <p className="text-gray-500">Manage your bookings</p>
+      </div>
 
       {alert && (
         <Alert
@@ -76,91 +78,110 @@ export default function MyBookings() {
         />
       )}
 
+      {/* LOADING */}
       {loading ? (
-        <div style={{ textAlign: "center", padding: "40px" }}>
-          <div className="spinner"></div>
+        <div className="flex justify-center py-10">
+          <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
         </div>
       ) : bookings.length === 0 ? (
-        <div className="card">
-          <div
-            className="card-body"
-            style={{ textAlign: "center", padding: "40px" }}
-          >
-            <p>No bookings yet. Start by booking an event!</p>
-          </div>
-        </div>
+        <p className="text-center text-gray-400 py-16">
+          No bookings yet. Start by booking an event!
+        </p>
       ) : (
-        <div className="grid" style={{ gridTemplateColumns: "1fr" }}>
-          {bookings.map((booking) => {
-            const bookingId =
-              booking.id || booking.Id || booking.bookingId;
+        <>
+          {/* ACTIVE */}
+          {activeBookings.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="font-semibold">Active Bookings</h2>
 
-            return (
-              <div key={bookingId} className="card">
-                <div className="card-body">
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "start",
-                    }}
-                  >
-                    <div>
-                      <h3 style={{ marginBottom: "10px" }}>
-                        {booking.eventTitle || "Event"}
-                      </h3>
+              <div className="grid gap-4">
+                {activeBookings.map((booking) => {
+                  const id =
+                    booking.id || booking.Id || booking.bookingId
 
-                      <p style={{ color: "#666", marginBottom: "6px" }}>
-                        <strong>Room:</strong>{" "}
-                        {booking.roomName || "N/A"}
-                      </p>
+                  return (
+                    <div
+                      key={id}
+                      className="bg-white rounded-xl shadow-md p-5 flex justify-between items-start"
+                    >
+                      <div className="space-y-2">
 
-                      <p style={{ color: "#666", marginBottom: "6px" }}>
-                        <strong>Seat:</strong>{" "}
-                        {booking.seatNumber || "N/A"}
-                      </p>
+                        <h3 className="font-semibold">
+                          {booking.eventTitle || "Event"}
+                        </h3>
 
-                      <p style={{ color: "#666", marginBottom: "6px" }}>
-                        <strong>Status:</strong>{" "}
+                        <div className="text-sm text-gray-500 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4" />
+                            {booking.roomName || "N/A"}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Armchair className="w-4 h-4" />
+                            Seat: {booking.seatNumber || "N/A"}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            {booking.bookingDate
+                              ? new Date(
+                                  booking.bookingDate
+                                ).toLocaleDateString()
+                              : "N/A"}
+                          </div>
+                        </div>
+
                         <span
-                          style={{
-                            padding: "4px 8px",
-                            borderRadius: "4px",
-                            ...getStatusStyle(booking.status),
-                          }}
+                          className={`inline-block px-2 py-1 text-xs rounded ${getStatusStyle(
+                            booking.status
+                          )}`}
                         >
                           {booking.status || "Pending"}
                         </span>
-                      </p>
+                      </div>
 
-                      <p style={{ color: "#999", fontSize: "12px" }}>
-                        Booked on{" "}
-                        {booking.bookingDate
-                          ? new Date(
-                              booking.bookingDate
-                            ).toLocaleDateString()
-                          : "N/A"}
-                      </p>
+                      <button
+                        onClick={() => handleCancelBooking(id)}
+                        disabled={booking.status === "Cancelled"}
+                        className="text-red-600 text-sm hover:underline disabled:opacity-50"
+                      >
+                        {booking.status === "Cancelled"
+                          ? "Cancelled"
+                          : "Cancel"}
+                      </button>
                     </div>
-
-                    <button
-                      className="btn btn-danger"
-                      disabled={booking.status === "Cancelled"}
-                      onClick={() =>
-                        handleCancelBooking(bookingId)
-                      }
-                    >
-                      {booking.status === "Cancelled"
-                        ? "Cancelled"
-                        : "Cancel"}
-                    </button>
-                  </div>
-                </div>
+                  )
+                })}
               </div>
-            );
-          })}
-        </div>
+            </div>
+          )}
+
+          {/* CANCELLED */}
+          {cancelledBookings.length > 0 && (
+            <div className="space-y-4 opacity-60">
+              <h2 className="font-semibold">Cancelled</h2>
+
+              <div className="grid gap-4">
+                {cancelledBookings.map((booking) => {
+                  const id =
+                    booking.id || booking.Id || booking.bookingId
+
+                  return (
+                    <div
+                      key={id}
+                      className="bg-white rounded-xl shadow-md p-5"
+                    >
+                      <h3 className="font-semibold">
+                        {booking.eventTitle}
+                      </h3>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
-  );
+  )
 }
