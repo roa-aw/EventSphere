@@ -7,4 +7,5 @@ public class EventCreateDTO
     public DateTime Date { get; set; }
     public Guid RoomId { get; set; }
     public string Type { get; set; }
+    public string? ImageUrl { get; set; }
 }

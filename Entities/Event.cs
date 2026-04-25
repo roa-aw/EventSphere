@@ -7,7 +7,7 @@ public class Event
     public string Description { get; set; }
     public DateTime Date { get; set; }
     public string Type { get; set; }
-    public string ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
 
     // Relations
     public Guid RoomId { get; set; }

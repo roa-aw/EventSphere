@@ -50,7 +50,7 @@ export default function EventDetails({ event, onBack, onBook }) {
       {/* HERO */}
       <div className="relative h-64 md:h-80 rounded-xl overflow-hidden">
         <img
-          src={event.imageUrl || "https://via.placeholder.com/800"}
+          src={event?.imageUrl || "https://picsum.photos/800/400"}
           alt={event.title}
           className="w-full h-full object-cover"
         />

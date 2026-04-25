@@ -11,6 +11,6 @@ public class BookingResponseDTO
     public string EventTitle { get; set; }
     public string RoomName { get; set; }
 
-    public string SeatNumber { get; set; } // ✅ ADD THIS
+    public string SeatNumber { get; set; } 
     public DateTime BookingDate { get; set; }
 }

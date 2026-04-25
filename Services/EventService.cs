@@ -24,7 +24,8 @@ public class EventService : IEventService
                 Title = e.Title,
                 Description = e.Description,
                 Date = e.Date,
-                Type = e.Type
+                Type = e.Type,
+                ImageUrl = e.ImageUrl
             })
             .ToListAsync();
     }
@@ -38,7 +39,8 @@ public class EventService : IEventService
             Description = dto.Description,
             Date = dto.Date.ToUniversalTime(),
             RoomId = dto.RoomId,
-            Type = dto.Type
+            Type = dto.Type,
+            ImageUrl = dto.ImageUrl
         };
 
         _context.Events.Add(ev);
@@ -50,7 +52,8 @@ public class EventService : IEventService
             Title = ev.Title,
             Description = ev.Description,
             Date = ev.Date,
-            Type = ev.Type
+            Type = ev.Type,
+            ImageUrl = ev.ImageUrl
         };
     }
 
@@ -64,6 +67,7 @@ public class EventService : IEventService
         ev.Description = dto.Description;
         ev.Date = dto.Date.ToUniversalTime();
         ev.RoomId = dto.RoomId;
+        ev.ImageUrl = dto.ImageUrl;
 
         _context.Events.Update(ev);
         await _context.SaveChangesAsync();

@@ -46,19 +46,25 @@ export default function EventCard({
       
       {/* IMAGE */}
       <div className="relative h-48 overflow-hidden">
-        {image ? (
-          <img
-            src={image}
-            alt={event.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-4xl bg-gray-100">
-            🎪
-          </div>
-        )}
+  {image ? (
+    <img
+      src={image}
+      alt={event.title}
+      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 bg-gray-100"
+      onError={(e) => {
+  e.currentTarget.onerror = null // prevent infinite loop
+  e.currentTarget.src =
+    "https://via.placeholder.com/600x300?text=Event"
+}}
+    />
+  ) : (
+    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-sm">
+  No Image
+</div>
+  )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
 
         {event.category && (
           <span
@@ -72,6 +78,7 @@ export default function EventCard({
           </span>
         )}
       </div>
+  
 
       {/* CONTENT */}
       <div className="p-5">

@@ -230,93 +230,129 @@ export default function AdminPanel() {
 
           <div className="space-y-6">
             {showEventForm && (
-              <div className="bg-white rounded-xl shadow-md p-5">
-                <form onSubmit={handleCreateEvent}>
-                  <div className="space-y-2">
-                    <label>Event Title</label>
-                    <input
-                      type="text"
-                      value={eventForm.title}
-                      onChange={(e) =>
-                        setEventForm({ ...eventForm, title: e.target.value })
-                      }
-                      placeholder="e.g., React Conference 2026"
-                    />
-                  </div>
+  <div className="bg-white rounded-xl shadow-md p-6 max-w-3xl space-y-6">
+    <form onSubmit={handleCreateEvent} className="space-y-5">
 
-                  <div className="space-y-2">
-                    <label>Description</label>
-                    <textarea
-                      value={eventForm.description}
-                      onChange={(e) =>
-                        setEventForm({ ...eventForm, description: e.target.value })
-                      }
-                      placeholder="Event details..."
-                      rows="4"
-                    />
-                  </div>
+      {/* Title */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">
+          Event Title
+        </label>
+        <input
+          type="text"
+          value={eventForm.title}
+          onChange={(e) =>
+            setEventForm({ ...eventForm, title: e.target.value })
+          }
+          placeholder="e.g., React Conference 2026"
+          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
+        />
+      </div>
 
-                  <div className="space-y-2">
-                    <label>Date & Time</label>
-                    <input
-                      type="datetime-local"
-                      value={eventForm.date}
-                      onChange={(e) =>
-                        setEventForm({ ...eventForm, date: e.target.value })
-                      }
-                    />
-                  </div>
+      {/* Description */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">
+          Description
+        </label>
+        <textarea
+          rows={4}
+          value={eventForm.description}
+          onChange={(e) =>
+            setEventForm({ ...eventForm, description: e.target.value })
+          }
+          placeholder="Event details..."
+          className="w-full px-3 py-2 border rounded-md resize-none focus:ring-2 focus:ring-violet-500 outline-none"
+        />
+      </div>
 
-                  <div className="space-y-2">
-                    <label>Room</label>
-                    <select
-                      value={eventForm.roomId}
-                      onChange={(e) =>
-                        setEventForm({ ...eventForm, roomId: e.target.value })
-                      }
-                    >
-                      <option value="">Select a room</option>
-                      {rooms.map((room) => (
-                        <option key={room.id} value={room.id}>
-                          {room.name} (Capacity: {room.capacity})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+      {/* Date */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">
+          Date & Time
+        </label>
+        <input
+          type="datetime-local"
+          value={eventForm.date}
+          onChange={(e) =>
+            setEventForm({ ...eventForm, date: e.target.value })
+          }
+          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
+        />
+      </div>
 
-                  <div className="space-y-2">
-                    <label>Event Type</label>
-                    <select
-                      value={eventForm.type}
-                      onChange={(e) =>
-                        setEventForm({ ...eventForm, type: e.target.value })
-                      }
-                    >
-                      <option value="">Select type</option>
-                      <option value="Conference">Conference</option>
-                      <option value="Concert">Concert</option>
-                      <option value="Workshop">Workshop</option>
-                    </select>
-                  </div>
+      {/* Room + Type */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">
+            Room
+          </label>
+          <select
+            value={eventForm.roomId}
+            onChange={(e) =>
+              setEventForm({ ...eventForm, roomId: e.target.value })
+            }
+            className="w-full px-3 py-2 border rounded-md"
+          >
+            <option value="">Select a room</option>
+            {rooms.map((room) => (
+              <option key={room.id} value={room.id}>
+                {room.name} (Capacity: {room.capacity})
+              </option>
+            ))}
+          </select>
+        </div>
 
-                  <div className="space-y-2">
-                    <label>Image URL</label>
-                    <input
-                      type="text"
-                      placeholder="Image URL"
-                      value={eventForm.imageUrl}
-                      onChange={(e) =>
-                        setEventForm({ ...eventForm, imageUrl: e.target.value })
-                      }
-                    />
-                  </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">
+            Event Type
+          </label>
+          <select
+            value={eventForm.type}
+            onChange={(e) =>
+              setEventForm({ ...eventForm, type: e.target.value })
+            }
+            className="w-full px-3 py-2 border rounded-md"
+          >
+            <option value="">Select type</option>
+            <option value="Conference">Conference</option>
+            <option value="Concert">Concert</option>
+            <option value="Workshop">Workshop</option>
+          </select>
+        </div>
 
-                  <button type="submit" className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-2 rounded-md">
-                    Create Event
-                  </button>
-                </form>
-              </div>
-            )}
+      </div>
+
+      {/* Image URL */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">
+          Image URL
+        </label>
+        <input
+          type="text"
+          placeholder="https://..."
+          value={eventForm.imageUrl}
+          onChange={(e) =>
+            setEventForm({ ...eventForm, imageUrl: e.target.value })
+          }
+          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
+        />
+      </div>
+
+      {/* Button */}
+      <div className="pt-2">
+        <button
+          type="submit"
+          className="w-full py-3 rounded-md text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-90 transition"
+        >
+          Create Event
+        </button>
+      </div>
+
+    </form>
+  </div>
+)}
+          
 
           <div className="bg-white rounded-xl shadow-md p-5">
             <h3>Create Room</h3>
