@@ -25,12 +25,14 @@ public class EventService : IEventService
                 Description = e.Description,
                 Date = e.Date,
                 Category = e.Category,
-                ImageUrl = e.ImageUrl
+                ImageUrl = e.ImageUrl,
+                CreatedByUserId = e.CreatedByUserId // ✅ added
             })
             .ToListAsync();
     }
 
-    public async Task<EventResponseDTO> CreateEvent(EventCreateDTO dto)
+    // ✅ UPDATED (added userId)
+    public async Task<EventResponseDTO> CreateEvent(EventCreateDTO dto, Guid userId)
     {
         var ev = new Event
         {
@@ -40,7 +42,8 @@ public class EventService : IEventService
             Date = dto.Date.ToUniversalTime(),
             RoomId = dto.RoomId,
             Category = dto.Category,
-            ImageUrl = dto.ImageUrl
+            ImageUrl = dto.ImageUrl,
+            CreatedByUserId = userId // ✅ important
         };
 
         _context.Events.Add(ev);
@@ -53,15 +56,25 @@ public class EventService : IEventService
             Description = ev.Description,
             Date = ev.Date,
             Category = ev.Category,
-            ImageUrl = ev.ImageUrl
+            ImageUrl = ev.ImageUrl,
+            CreatedByUserId = ev.CreatedByUserId // ✅ added
         };
     }
 
-    public async Task<bool> UpdateEvent(Guid id, EventCreateDTO dto)
+    // ✅ UPDATED (ownership + role)
+    public async Task<bool> UpdateEvent(Guid id, EventCreateDTO dto, Guid userId, string role)
     {
         var ev = await _context.Events.FindAsync(id);
         if (ev == null)
             return false;
+
+        // ✅ Admin can update anything
+        if (role != "Admin")
+        {
+            // ✅ Organizer can only update own event
+            if (role != "EventOrganizer" || ev.CreatedByUserId != userId)
+                return false;
+        }
 
         ev.Title = dto.Title;
         ev.Description = dto.Description;
@@ -76,16 +89,43 @@ public class EventService : IEventService
         return true;
     }
 
-    public async Task<bool> DeleteEvent(Guid id)
+    // ✅ UPDATED (ownership + role)
+    public async Task<bool> DeleteEvent(Guid id, Guid userId, string role)
     {
         var ev = await _context.Events.FindAsync(id);
 
         if (ev == null)
             return false;
 
+        // ✅ Admin can delete anything
+        if (role != "Admin")
+        {
+            // ✅ Organizer can only delete own event
+            if (role != "EventOrganizer" || ev.CreatedByUserId != userId)
+                return false;
+        }
+
         _context.Events.Remove(ev);
         await _context.SaveChangesAsync();
 
         return true;
+    }
+
+    // ✅ NEW (for My Events page)
+    public async Task<List<EventResponseDTO>> GetEventsByUser(Guid userId)
+    {
+        return await _context.Events
+            .Where(e => e.CreatedByUserId == userId)
+            .Select(e => new EventResponseDTO
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Description = e.Description,
+                Date = e.Date,
+                Category = e.Category,
+                ImageUrl = e.ImageUrl,
+                CreatedByUserId = e.CreatedByUserId
+            })
+            .ToListAsync();
     }
 }

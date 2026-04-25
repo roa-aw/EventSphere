@@ -14,5 +14,6 @@ public class Event
     public Room Room { get; set; }
 
     public ICollection<Booking> Bookings { get; set; }
+    public Guid CreatedByUserId { get; set; }
     
 }

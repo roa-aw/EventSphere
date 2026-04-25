@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react"
 import { cn } from "../lib/utils"
+import { Link } from "react-router-dom"
 
 export default function Sidebar({ user, currentPage, onNavigate, onLogout, isOpen, setIsOpen }) {
 
@@ -24,7 +25,7 @@ export default function Sidebar({ user, currentPage, onNavigate, onLogout, isOpe
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "events", label: "Events", icon: Calendar },
     { id: "rooms", label: "Rooms", icon: DoorOpen },
-    { id: "bookings", label: "My Bookings", icon: Ticket }, // ✅ your route
+    { id: "bookings", label: "My Bookings", icon: Ticket }, 
     { id: "payments", label: "Payments", icon: CreditCard },
     { id: "profile", label: "Profile", icon: User },
   ]
@@ -105,6 +106,24 @@ export default function Sidebar({ user, currentPage, onNavigate, onLogout, isOpe
             )
           })}
 
+          {user?.role === "EventOrganizer" && (
+  <button
+    onClick={() => {
+      onNavigate("my-events")
+      if (window.innerWidth < 768) setIsOpen(false)
+    }}
+    className={cn(
+      "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all",
+      currentPage === "my-events"
+        ? "bg-white/15 text-white border border-violet-400/30"
+        : "hover:bg-white/10 text-violet-200 hover:text-white"
+    )}
+  >
+    <Calendar className="w-5 h-5" />
+    {isOpen && <span>My Events</span>}
+  </button>
+)}
+
           {/* ADMIN */}
           {isAdmin && (
             <button
@@ -124,6 +143,7 @@ export default function Sidebar({ user, currentPage, onNavigate, onLogout, isOpe
             </button>
           )}
         </nav>
+
 
         {/* USER */}
         <div className="p-4 border-t border-violet-800/30">

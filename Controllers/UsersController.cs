@@ -42,16 +42,14 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetUser(Guid id)
     {
         var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
         if (currentUserIdClaim == null || string.IsNullOrEmpty(currentUserIdClaim.Value))
-        {
             return Unauthorized();
-        }
+
         var currentUserId = Guid.Parse(currentUserIdClaim.Value);
 
         if (id != currentUserId && !User.IsInRole("Admin"))
-        {
             return Forbid();
-        }
 
         var user = await _context.Users
             .Where(u => u.Id == id)
@@ -113,31 +111,60 @@ public class UsersController : ControllerBase
         return Ok();
     }
 
+    // GET: api/users/profile
     [HttpGet("profile")]
-[Authorize]
-public async Task<IActionResult> GetProfile()
-{
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+    [Authorize]
+    public async Task<IActionResult> GetProfile()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
-    if (userIdClaim == null)
-        return Unauthorized();
+        if (userIdClaim == null)
+            return Unauthorized();
 
-    var userId = Guid.Parse(userIdClaim.Value);
+        var userId = Guid.Parse(userIdClaim.Value);
 
-    var user = await _context.Users
-        .Where(u => u.Id == userId)
-        .Select(u => new UserResponseDTO
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new UserResponseDTO
+            {
+                Id = u.Id,
+                FullName = u.FullName,
+                Email = u.Email,
+                Role = u.Role
+            })
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+            return NotFound();
+
+        return Ok(user);
+    }
+
+    // PUT: api/users/{id}/role (Admin only)
+    [HttpPut("{id}/role")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] UpdateUserRoleDTO dto)
+    {
+        if (dto == null || string.IsNullOrWhiteSpace(dto.Role))
+            return BadRequest("Role is required");
+
+        var user = await _context.Users.FindAsync(id);
+
+        if (user == null)
+            return NotFound();
+
+        // ✅ strict role validation (case-safe)
+        var role = dto.Role.Trim();
+
+        if (role != "User" && role != "Admin" && role != "EventOrganizer")
         {
-            Id = u.Id,
-            FullName = u.FullName,
-            Email = u.Email,
-            Role = u.Role
-        })
-        .FirstOrDefaultAsync();
+            return BadRequest("Invalid role");
+        }
 
-    if (user == null)
-        return NotFound();
+        user.Role = role;
 
-    return Ok(user);
-}
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Role updated successfully" });
+    }
 }

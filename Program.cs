@@ -55,7 +55,7 @@ builder.Services.AddSwaggerGen(options =>
 
 // JWT
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]!);
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -73,7 +73,9 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key)
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+
+         RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
     };
 });
 
@@ -92,18 +94,12 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors("AllowFrontend");
-// Middleware
 app.UseRouting();
-app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-// Swagger
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseAuthentication();   // ✅ auth first
+app.UseAuthorization();    // ✅ then authorize
 app.UseSwagger();
 app.UseSwaggerUI();
-
 app.MapControllers();
-
 app.Run();

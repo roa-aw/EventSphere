@@ -23,6 +23,71 @@ export default function Events({ setEventDetails, setSelectedEvent }) {
   const [showActive, setShowActive] = useState("all");
   const [alert, setAlert] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [user, setUser] = useState(null);
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [title, setTitle] = useState("");
+const [description, setDescription] = useState("");
+const [date, setDate] = useState("");
+const [category, setCategory] = useState("");
+const [imageUrl, setImageUrl] = useState("");
+const [roomId, setRoomId] = useState("");
+const [rooms, setRooms] = useState([]);
+
+useEffect(() => {
+  API.get("/users/profile")
+    .then((res) => setUser(res.data))
+    .catch(() => {});
+}, []);
+
+useEffect(() => {
+  API.get("/rooms")
+    .then((res) => {
+      console.log("ROOMS:", res.data); 
+      setRooms(res.data);
+    })
+    .catch((err) => {
+      console.error("Failed to load rooms", err);
+    });
+}, []);
+
+const handleCreateEvent = async (e) => {
+  e.preventDefault();
+
+  try {
+    await API.post("/events", {
+      title,
+      description,
+      date,
+      category,
+      imageUrl,
+      roomId,
+    });
+
+    setAlert({
+      type: "success",
+      message: "Event created successfully",
+    });
+
+    // reset
+    setTitle("");
+    setDescription("");
+    setDate("");
+    setCategory("");
+    setImageUrl("");
+    setRoomId("");
+
+    setShowEventForm(false);
+    loadEvents();
+  } catch (err) {
+    setAlert({
+      type: "error",
+      message: "Failed to create event",
+    });
+  }
+};
+
+const canCreateEvent =
+  user?.role === "Admin" || user?.role === "EventOrganizer";
 
 
   const loadEvents = async () => {
@@ -84,24 +149,109 @@ const isUpcoming = (dateString) => {
 
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+  <div className="space-y-6 p-4 md:p-6">
 
-      {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Events</h1>
-          <p className="text-gray-500">
-            Discover and book events
-          </p>
-        </div>
+    {/* HEADER */}
+    <div className="flex justify-between items-center">
+      <div>
+        <h1 className="text-2xl font-bold">Events</h1>
+        <p className="text-gray-500">
+          Discover and book events
+        </p>
+      </div>
 
+      <div className="flex gap-3">
         <button
           onClick={loadEvents}
           className="px-4 py-2 rounded-md bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
         >
           Refresh
         </button>
+
+        {canCreateEvent && (
+          <button
+            onClick={() => setShowEventForm(!showEventForm)}
+            className="px-4 py-2 rounded-md bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
+          >
+            {showEventForm ? "Cancel" : "+ Create Event"}
+          </button>
+        )}
       </div>
+    </div>
+
+{canCreateEvent && showEventForm && (
+  <div className="bg-white rounded-xl shadow-md p-6 max-w-3xl">
+    <form onSubmit={handleCreateEvent} className="space-y-5">
+
+      <input
+        type="text"
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="w-full border p-2 rounded"
+      />
+
+      <textarea
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        className="w-full border p-2 rounded"
+      />
+
+      <input
+        type="datetime-local"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        className="w-full border p-2 rounded"
+      />
+
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        className="w-full border p-2 rounded"
+      >
+        <option value="">Select Category</option>
+        {EVENT_CATEGORIES.map((cat) => (
+          <option key={cat} value={cat}>
+            {cat}
+          </option>
+        ))}
+      </select>
+
+      <input
+        type="text"
+        placeholder="Image URL"
+        value={imageUrl}
+        onChange={(e) => setImageUrl(e.target.value)}
+        className="w-full border p-2 rounded"
+      />
+
+      <select
+        value={roomId}
+        onChange={(e) => setRoomId(e.target.value)}
+        className="w-full border p-2 rounded"
+      >
+        <option value="">Select Room</option>
+        {rooms.map((room) => (
+          <option key={room.id} value={room.id}>
+            {room.name} (Capacity: {room.capacity})
+          </option>
+        ))}
+      </select>
+
+      <button
+        type="submit"
+        className="w-full py-3 rounded-md text-white bg-gradient-to-r from-violet-600 to-indigo-600"
+      >
+        Create Event
+      </button>
+
+    </form>
+  </div>
+)}
+
+
+      
 
       {/* ALERT */}
       {alert && (

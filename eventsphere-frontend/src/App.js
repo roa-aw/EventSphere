@@ -14,6 +14,7 @@ import Footer from "./components/Footer";
 import API from "./services/api";
 import "./styles/global.css";
 import EventDetails from "./pages/EventDetails";
+import MyEvents from "./pages/MyEvents";
 // import "./App.css";
 // import "./Sidebar.css";
 // import "./index.css";
@@ -145,6 +146,10 @@ const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768)
     pageContent = <Profile />;
   }
 
+  else if (currentPage === "my-events") {
+  pageContent = <MyEvents />;
+}
+
   else if (currentPage === "admin") {
     if (user?.role === "Admin" || user?.role === "admin") {
       pageContent = <AdminPanel />;
@@ -204,5 +209,7 @@ const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768)
     </div>
   </div>
 );
+
+
 }
 export default App;

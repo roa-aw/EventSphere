@@ -23,6 +23,13 @@ export default function AdminPanel() {
   const [editingEventId, setEditingEventId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [showRoomForm, setShowRoomForm] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+  API.get("/users/profile")
+    .then((res) => setUser(res.data))
+    .catch(() => {});
+}, []);
 
   useEffect(() => {
     loadData();
@@ -135,20 +142,27 @@ export default function AdminPanel() {
   };
 
   const handleUpdateUserRole = async (userId, newRole) => {
-    try {
-      await API.put(`/users/${userId}`, { role: newRole });
-      setAlert({
-        type: "success",
-        message: "User role updated successfully",
-      });
-      await loadData();
-    } catch (err) {
-      setAlert({
-        type: "error",
-        message: "Failed to update user role",
-      });
-    }
-  };
+  try {
+    await API.put(`/users/${userId}/role`, { 
+      role: newRole,
+    });
+
+    setAlert({
+      type: "success",
+      message: "User role updated successfully",
+    });
+
+    await loadData();
+  } catch (err) {
+    setAlert({
+      type: "error",
+      message: "Failed to update user role",
+    });
+  }
+};
+
+const canCreateEvent =
+  user?.role === "Admin" || user?.role === "EventOrganizer";
 
 
   return (
@@ -199,12 +213,14 @@ export default function AdminPanel() {
 
     {/* 🔥 Buttons with proper spacing */}
     <div className="space-y-3 mb-4">
-      <button
-        className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-md"
-        onClick={() => setShowEventForm(!showEventForm)}
-      >
-        {showEventForm ? "Cancel" : "+ Create Event"}
-      </button>
+      {canCreateEvent && (
+  <button
+    className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-md"
+    onClick={() => setShowEventForm(!showEventForm)}
+  >
+    {showEventForm ? "Cancel" : "+ Create Event"}
+  </button>
+)}
 
       <button
         className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-md"

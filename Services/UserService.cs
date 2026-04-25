@@ -22,7 +22,8 @@ public class UserService : IUserService
             {
                 Id = u.Id,
                 FullName = u.FullName,
-                Email = u.Email
+                Email = u.Email,
+                Role = u.Role // ✅ added
             })
             .ToListAsync();
     }
@@ -35,7 +36,8 @@ public class UserService : IUserService
             {
                 Id = u.Id,
                 FullName = u.FullName,
-                Email = u.Email
+                Email = u.Email,
+                Role = u.Role // ✅ added
             })
             .FirstOrDefaultAsync();
     }
@@ -58,7 +60,8 @@ public class UserService : IUserService
         {
             Id = user.Id,
             FullName = user.FullName,
-            Email = user.Email
+            Email = user.Email,
+            Role = user.Role // ✅ added
         };
     }
 
@@ -70,6 +73,24 @@ public class UserService : IUserService
             return false;
 
         _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    // ✅ NEW METHOD (needed for organizer logic)
+    public async Task<bool> UpdateUserRole(Guid id, string role)
+    {
+        var user = await _context.Users.FindAsync(id);
+
+        if (user == null)
+            return false;
+
+        if (role != "User" && role != "Admin" && role != "EventOrganizer")
+            return false;
+
+        user.Role = role;
+
         await _context.SaveChangesAsync();
 
         return true;

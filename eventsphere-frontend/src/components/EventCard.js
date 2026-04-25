@@ -2,7 +2,7 @@
 
 import { Calendar, MapPin } from "lucide-react"
 import { cn } from "../lib/utils"
-
+import API from "../services/api";
 const categoryColors = {
   AI: "bg-blue-100 text-blue-700 border-blue-200",
   Blockchain: "bg-amber-100 text-amber-700 border-amber-200",
@@ -40,6 +40,16 @@ export default function EventCard({
   const roomText =
     event.room ||
     `${event.rooms?.length || 0} venue${event.rooms?.length !== 1 ? "s" : ""}`
+
+  const handleDelete = async (id) => {
+  try {
+    await API.delete(`/events/${id}`);
+    alert("Deleted!");
+    window.location.reload();
+  } catch {
+    alert("Failed to delete");
+  }
+};
 
   return (
     <div className="group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white">
@@ -102,6 +112,13 @@ export default function EventCard({
             <span>{roomText}</span>
           </div>
         </div>
+
+        <button
+  onClick={() => handleDelete(event.id)}
+  className="text-red-500"
+>
+  Delete
+</button>
 
         {/* BUTTONS */}
         <div className="flex gap-2">
