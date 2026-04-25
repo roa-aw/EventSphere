@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import Alert from "../components/Alert";
 import { cn } from "../lib/utils";
+import CreateRoomForm from "../components/CreateRoomForm";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("events");
@@ -19,9 +20,9 @@ export default function AdminPanel() {
     imageUrl: "",
   });
   const [rooms, setRooms] = useState([]);
-  const [roomName, setRoomName] = useState("");
   const [editingEventId, setEditingEventId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
+  const [showRoomForm, setShowRoomForm] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -78,7 +79,7 @@ export default function AdminPanel() {
         description: "",
         date: "",
         roomId: "",
-        type: "",
+        category: "",
         imageUrl: "",
       });
       setShowEventForm(false);
@@ -149,32 +150,6 @@ export default function AdminPanel() {
     }
   };
 
-  const handleCreateRoom = async () => {
-    if (!roomName) {
-      setAlert({
-        type: "error",
-        message: "Room name required",
-      });
-      return;
-    }
-
-    try {
-      await API.post("/rooms", { name: roomName });
-
-      setAlert({
-        type: "success",
-        message: "Room created successfully",
-      });
-
-      setRoomName("");
-      await loadData();
-    } catch {
-      setAlert({
-        type: "error",
-        message: "Failed to create room",
-      });
-    }
-  };
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -219,164 +194,172 @@ export default function AdminPanel() {
       </div>
 
       {/* Events Tab */}
-      {activeTab === "events" && (
-        <div>
-          <button
-            className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-md"
-            onClick={() => setShowEventForm(!showEventForm)}
-          >
-            {showEventForm ? "Cancel" : "+ Create Event"}
-          </button>
+{activeTab === "events" && (
+  <div>
 
-          <div className="space-y-6">
-            {showEventForm && (
-  <div className="bg-white rounded-xl shadow-md p-6 max-w-3xl space-y-6">
-    <form onSubmit={handleCreateEvent} className="space-y-5">
+    {/* 🔥 Buttons with proper spacing */}
+    <div className="space-y-3 mb-4">
+      <button
+        className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-md"
+        onClick={() => setShowEventForm(!showEventForm)}
+      >
+        {showEventForm ? "Cancel" : "+ Create Event"}
+      </button>
 
-      {/* Title */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">
-          Event Title
-        </label>
-        <input
-          type="text"
-          value={eventForm.title}
-          onChange={(e) =>
-            setEventForm({ ...eventForm, title: e.target.value })
-          }
-          placeholder="e.g., React Conference 2026"
-          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
-        />
-      </div>
+      <button
+        className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-md"
+        onClick={() => setShowRoomForm(!showRoomForm)}
+      >
+        {showRoomForm ? "Cancel" : "+ Create Room"}
+      </button>
+    </div>
 
-      {/* Description */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">
-          Description
-        </label>
-        <textarea
-          rows={4}
-          value={eventForm.description}
-          onChange={(e) =>
-            setEventForm({ ...eventForm, description: e.target.value })
-          }
-          placeholder="Event details..."
-          className="w-full px-3 py-2 border rounded-md resize-none focus:ring-2 focus:ring-violet-500 outline-none"
-        />
-      </div>
+    <div className="space-y-6">
 
-      {/* Date */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">
-          Date & Time
-        </label>
-        <input
-          type="datetime-local"
-          value={eventForm.date}
-          onChange={(e) =>
-            setEventForm({ ...eventForm, date: e.target.value })
-          }
-          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
-        />
-      </div>
+      {/* Event Form */}
+      {showEventForm && (
+        <div className="bg-white rounded-xl shadow-md p-6 max-w-3xl space-y-6">
+          <form onSubmit={handleCreateEvent} className="space-y-5">
 
-      {/* Room + Type */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
-            Room
-          </label>
-          <select
-            value={eventForm.roomId}
-            onChange={(e) =>
-              setEventForm({ ...eventForm, roomId: e.target.value })
-            }
-            className="w-full px-3 py-2 border rounded-md"
-          >
-            <option value="">Select a room</option>
-            {rooms.map((room) => (
-              <option key={room.id} value={room.id}>
-                {room.name} (Capacity: {room.capacity})
-              </option>
-            ))}
-          </select>
+            {/* Title */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Event Title
+              </label>
+              <input
+                type="text"
+                value={eventForm.title}
+                onChange={(e) =>
+                  setEventForm({ ...eventForm, title: e.target.value })
+                }
+                placeholder="e.g., React Conference 2026"
+                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
+              />
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Description
+              </label>
+              <textarea
+                rows={4}
+                value={eventForm.description}
+                onChange={(e) =>
+                  setEventForm({ ...eventForm, description: e.target.value })
+                }
+                placeholder="Event details..."
+                className="w-full px-3 py-2 border rounded-md resize-none focus:ring-2 focus:ring-violet-500 outline-none"
+              />
+            </div>
+
+            {/* Date */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Date & Time
+              </label>
+              <input
+                type="datetime-local"
+                value={eventForm.date}
+                onChange={(e) =>
+                  setEventForm({ ...eventForm, date: e.target.value })
+                }
+                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
+              />
+            </div>
+
+            {/* Room + Category */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Room
+                </label>
+                <select
+                  value={eventForm.roomId}
+                  onChange={(e) =>
+                    setEventForm({ ...eventForm, roomId: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="">Select a room</option>
+                  {rooms.map((room) => (
+                    <option key={room.id} value={room.id}>
+                      {room.name} (Capacity: {room.capacity})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Category
+                </label>
+                <select
+                  value={eventForm.category}
+                  onChange={(e) =>
+                    setEventForm({ ...eventForm, category: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="">Select Category</option>
+                  <option value="AI">AI</option>
+                  <option value="Blockchain">Blockchain</option>
+                  <option value="Cybersecurity">Cybersecurity</option>
+                  <option value="Web Development">Web Development</option>
+                  <option value="Data Science">Data Science</option>
+                  <option value="Cloud Computing">Cloud Computing</option>
+                  <option value="DevOps">DevOps</option>
+                  <option value="Mobile">Mobile</option>
+                </select>
+              </div>
+
+            </div>
+
+            {/* Image URL */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Image URL
+              </label>
+              <input
+                type="text"
+                placeholder="https://..."
+                value={eventForm.imageUrl}
+                onChange={(e) =>
+                  setEventForm({ ...eventForm, imageUrl: e.target.value })
+                }
+                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
+              />
+            </div>
+
+            {/* Button */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="w-full py-3 rounded-md text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-90 transition"
+              >
+                Create Event
+              </button>
+            </div>
+
+          </form>
         </div>
+      )}
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
-            Category
-          </label>
-          <select
-            value={eventForm.category}
-            onChange={(e) =>
-              setEventForm({ ...eventForm, category: e.target.value })
-            }
-            className="w-full px-3 py-2 border rounded-md"
-          >
-            
-<option value="">Select Category</option>
-<option value="AI">AI</option>
-<option value="Blockchain">Blockchain</option>
-<option value="Cybersecurity">Cybersecurity</option>
-<option value="Web Development">Web Development</option>
-<option value="Data Science">Data Science</option>
-<option value="Cloud Computing">Cloud Computing</option>
-<option value="DevOps">DevOps</option>
-<option value="Mobile">Mobile</option>
-          </select>
-        </div>
-
-      </div>
-
-      {/* Image URL */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">
-          Image URL
-        </label>
-        <input
-          type="text"
-          placeholder="https://..."
-          value={eventForm.imageUrl}
-          onChange={(e) =>
-            setEventForm({ ...eventForm, imageUrl: e.target.value })
-          }
-          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
-        />
-      </div>
-
-      {/* Button */}
-      <div className="pt-2">
-        <button
-          type="submit"
-          className="w-full py-3 rounded-md text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-90 transition"
-        >
-          Create Event
-        </button>
-      </div>
-
-    </form>
-  </div>
-)}
+      {/* Room Form */}
+      {showRoomForm && (
+        <CreateRoomForm
+        onSuccess={(message) => {
+    setAlert({
+      type: "success",
+      message: message,
+    });
+    loadData();
+    setShowRoomForm(false);
           
-
-          <div className="bg-white rounded-xl shadow-md p-5">
-            <h3>Create Room</h3>
-
-            <input
-              type="text"
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-              placeholder="Room name"
-            />
-
-            <button
-              className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-2 rounded-md"
-              onClick={handleCreateRoom}
-            >
-              Create Room
-            </button>
-          </div>
+          }}
+        />
+      )}
 
           {loading ? (
             <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin mx-auto" />

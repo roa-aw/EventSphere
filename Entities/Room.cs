@@ -7,4 +7,5 @@ public class Room
     public int Capacity { get; set; }
 
     public ICollection<Seat> Seats { get; set; }
+    public string? ImageUrl { get; set; }
 }

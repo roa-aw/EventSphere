@@ -21,7 +21,8 @@ public class RoomService : IRoomService
         {
             Id = Guid.NewGuid(),
             Name = dto.Name,
-            Capacity = dto.Capacity
+            Capacity = dto.Capacity,
+            ImageUrl = dto.ImageUrl
         };
 
         _context.Rooms.Add(room);
@@ -47,7 +48,8 @@ public class RoomService : IRoomService
         {
             Id = room.Id,
             Name = room.Name,
-            Capacity = room.Capacity
+            Capacity = room.Capacity,
+            ImageUrl = room.ImageUrl
         };
     }
 
@@ -58,7 +60,8 @@ public class RoomService : IRoomService
             {
                 Id = r.Id,
                 Name = r.Name,
-                Capacity = r.Capacity
+                Capacity = r.Capacity,
+                ImageUrl = r.ImageUrl
             })
             .ToListAsync();
     }

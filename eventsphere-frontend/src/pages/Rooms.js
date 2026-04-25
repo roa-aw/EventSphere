@@ -9,7 +9,13 @@ export default function Rooms() {
   const [alert, setAlert] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState({ name: "", capacity: "" })
+
+  // ✅ updated state (added imageUrl)
+  const [formData, setFormData] = useState({
+    name: "",
+    capacity: "",
+    imageUrl: ""
+  })
 
   useEffect(() => {
     checkAdminRole()
@@ -27,6 +33,7 @@ export default function Rooms() {
     try {
       setLoading(true)
       const res = await API.get("/rooms")
+      console.log(res.data);
       setRooms(res.data || [])
     } catch {
       setAlert({ type: "error", message: "Failed to load rooms" })
@@ -47,10 +54,13 @@ export default function Rooms() {
       await API.post("/rooms", {
         name: formData.name,
         capacity: parseInt(formData.capacity),
+        imageUrl: formData.imageUrl 
       })
 
       setAlert({ type: "success", message: "Room created" })
-      setFormData({ name: "", capacity: "" })
+
+      // reset form
+      setFormData({ name: "", capacity: "", imageUrl: "" })
       setShowForm(false)
       loadRooms()
     } catch {
@@ -128,6 +138,29 @@ export default function Rooms() {
               />
             </div>
 
+            {/* ✅ NEW IMAGE INPUT */}
+            <div>
+              <label className="text-sm text-gray-500">Image URL</label>
+              <input
+                type="text"
+                placeholder="https://..."
+                className="w-full mt-1 border rounded px-3 py-2"
+                value={formData.imageUrl}
+                onChange={(e) =>
+                  setFormData({ ...formData, imageUrl: e.target.value })
+                }
+              />
+            </div>
+
+            {/* ✅ PREVIEW */}
+            {formData.imageUrl && (
+              <img
+                src={formData.imageUrl}
+                alt="preview"
+                className="w-full h-32 object-cover rounded"
+              />
+            )}
+
             <button className="w-full bg-violet-600 text-white py-2 rounded">
               Create Room
             </button>
@@ -187,26 +220,37 @@ export default function Rooms() {
           {rooms.map((room) => (
             <div
               key={room.id}
-              className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
+              className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden"
             >
-              <h3 className="font-semibold text-lg">{room.name}</h3>
 
-              <p className="text-sm text-gray-500 mt-2">
-                Capacity: {room.capacity}
-              </p>
+              {/* ✅ IMAGE */}
+              <img
+                src={room.imageUrl || "https://via.placeholder.com/400x200"}
+                alt={room.name}
+                className="w-full h-40 object-cover"
+              />
 
-              <p className="text-sm text-gray-500">
-                Seats: {room.seats?.length || 0}
-              </p>
+              <div className="p-5">
+                <h3 className="font-semibold text-lg">{room.name}</h3>
 
-              {isAdmin && (
-                <button
-                  onClick={() => handleDeleteRoom(room.id)}
-                  className="mt-4 w-full bg-red-500 text-white py-2 rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              )}
+                <p className="text-sm text-gray-500 mt-2">
+                  Capacity: {room.capacity}
+                </p>
+
+                <p className="text-sm text-gray-500">
+                  Seats: {room.seats?.length || 0}
+                </p>
+
+                {isAdmin && (
+                  <button
+                    onClick={() => handleDeleteRoom(room.id)}
+                    className="mt-4 w-full bg-red-500 text-white py-2 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+
             </div>
           ))}
         </div>
@@ -214,3 +258,4 @@ export default function Rooms() {
     </div>
   )
 }
+
