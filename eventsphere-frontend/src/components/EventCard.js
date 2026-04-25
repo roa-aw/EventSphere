@@ -36,7 +36,7 @@ export default function EventCard({
     })
   }
 
-  const image = event.imageUrl || event.image
+  const image = event?.imageUrl || event.image
   const roomText =
     event.room ||
     `${event.rooms?.length || 0} venue${event.rooms?.length !== 1 ? "s" : ""}`
@@ -53,8 +53,8 @@ export default function EventCard({
       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 bg-gray-100"
       onError={(e) => {
   e.currentTarget.onerror = null // prevent infinite loop
-  e.currentTarget.src =
-    "https://via.placeholder.com/600x300?text=Event"
+  e.currentTarget.src = "https://picsum.photos/600/300"
+    
 }}
     />
   ) : (

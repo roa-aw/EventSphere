@@ -305,19 +305,25 @@ export default function AdminPanel() {
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">
-            Event Type
+            Category
           </label>
           <select
-            value={eventForm.type}
+            value={eventForm.category}
             onChange={(e) =>
-              setEventForm({ ...eventForm, type: e.target.value })
+              setEventForm({ ...eventForm, category: e.target.value })
             }
             className="w-full px-3 py-2 border rounded-md"
           >
-            <option value="">Select type</option>
-            <option value="Conference">Conference</option>
-            <option value="Concert">Concert</option>
-            <option value="Workshop">Workshop</option>
+            
+<option value="">Select Category</option>
+<option value="AI">AI</option>
+<option value="Blockchain">Blockchain</option>
+<option value="Cybersecurity">Cybersecurity</option>
+<option value="Web Development">Web Development</option>
+<option value="Data Science">Data Science</option>
+<option value="Cloud Computing">Cloud Computing</option>
+<option value="DevOps">DevOps</option>
+<option value="Mobile">Mobile</option>
           </select>
         </div>
 

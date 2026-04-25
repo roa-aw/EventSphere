@@ -3,10 +3,16 @@ import API from "../services/api";
 import EventCard from "../components/EventCard";
 import Alert from "../components/Alert";
 
-const TECH_EVENT_TYPES = [
-  "Conference",
-  "Concert",
-  "Workshop",
+
+const EVENT_CATEGORIES = [
+  "AI",
+  "Blockchain",
+  "Cybersecurity",
+  "Web Development",
+  "Data Science",
+  "Cloud Computing",
+  "DevOps",
+  "Mobile",
 ];
 
 export default function Events({ setEventDetails, setSelectedEvent }) {
@@ -14,67 +20,68 @@ export default function Events({ setEventDetails, setSelectedEvent }) {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [eventType, setEventType] = useState("");
   const [showActive, setShowActive] = useState("all");
   const [alert, setAlert] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
-  useEffect(() => {
-    loadEvents();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [events, searchTerm, eventType, showActive]);
 
   const loadEvents = async () => {
-    try {
-      setLoading(true);
-      const res = await API.get("/events");
-      setEvents(res.data || []);
-    } catch (err) {
-      setAlert({
-        type: "error",
-        message: "Failed to load events",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const res = await API.get("/events");
+    setEvents(res.data || []);
+  } catch (err) {
+    setAlert({
+      type: "error",
+      message: "Failed to load events",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
-  const applyFilters = () => {
-    let filtered = [...events];
+useEffect(() => {
+  loadEvents();
+}, []);
 
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter((event) =>
-        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (event.description || "").toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+  useEffect(() => {
+  let filtered = [...events];
 
-    // Event type filter (using the dedicated type field)
-    filtered = filtered.filter((e) => !eventType || e.type === eventType);
+  // Search filter
+  if (searchTerm) {
+    filtered = filtered.filter((event) =>
+      event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (event.description || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    );
+  }
 
-    // Active filter
-    if (showActive !== "all") {
-      const now = new Date();
-      filtered = filtered.filter((event) => {
-        const eventDate = new Date(event.date);
-        if (showActive === "active") {
-          return eventDate > now;
-        } else {
-          return eventDate <= now;
-        }
-      });
-    }
+  // Category filter
+  filtered = filtered.filter((event) => {
+    if (selectedCategory === "All") return true;
+    return (event.category || "").toLowerCase() === selectedCategory.toLowerCase();
+  });
 
-    setFilteredEvents(filtered);
-  };
+  // Active filter
+  if (showActive !== "all") {
+    const now = new Date();
 
-  const isUpcoming = (dateString) => {
-    return new Date(dateString) > new Date();
-  };
+    filtered = filtered.filter((event) => {
+      const eventDate = new Date(event.date);
+      return showActive === "active"
+        ? eventDate > now
+        : eventDate <= now;
+    });
+  }
+
+  setFilteredEvents(filtered);
+}, [events, searchTerm, selectedCategory, showActive]);
+
+const isUpcoming = (dateString) => {
+  return new Date(dateString) > new Date();
+};
+
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -120,18 +127,18 @@ export default function Events({ setEventDetails, setSelectedEvent }) {
           />
 
           {/* TYPE */}
-          <select
-            value={eventType}
-            onChange={(e) => setEventType(e.target.value)}
-            className="px-3 py-2 border rounded-md w-full"
-          >
-            <option value="">All Categories</option>
-            <option value="AI">AI</option>
-            <option value="Blockchain">Blockchain</option>
-            <option value="Cybersecurity">Cybersecurity</option>
-            <option value="Web Development">Web Development</option>
-            <option value="Data Science">Data Science</option>
-          </select>
+<select
+  value={selectedCategory}
+  onChange={(e) => setSelectedCategory(e.target.value)}
+  className="px-3 py-2 border rounded-md w-full"
+>
+  <option value="All">All Categories</option>
+  {EVENT_CATEGORIES.map((cat) => (
+    <option key={cat} value={cat}>
+      {cat}
+    </option>
+  ))}
+</select>
 
           {/* STATUS */}
           <select
@@ -146,19 +153,19 @@ export default function Events({ setEventDetails, setSelectedEvent }) {
         </div>
 
         {/* CLEAR */}
-        {(searchTerm || eventType || showActive !== "all") && (
-          <button
-            onClick={() => {
-              setSearchTerm("")
-              setEventType("")
-              setShowActive("all")
-            }}
-            className="text-sm text-violet-600 hover:underline"
-          >
-            Clear filters
-          </button>
-        )}
-      </div>
+        {(searchTerm || selectedCategory !== "All" || showActive !== "all") && (
+  <button
+    onClick={() => {
+      setSearchTerm("")
+      setSelectedCategory("All")
+      setShowActive("all")
+    }}
+    className="text-sm text-violet-600 hover:underline"
+  >
+    Clear filters
+  </button>
+)}
+</div>
 
       {/* CONTENT */}
       {loading ? (
