@@ -15,5 +15,6 @@ public class Event
 
     public ICollection<Booking> Bookings { get; set; }
     public Guid CreatedByUserId { get; set; }
+    public string Status { get; set; } = "Pending";
     
 }

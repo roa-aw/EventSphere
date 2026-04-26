@@ -24,6 +24,7 @@ export default function AdminPanel() {
   const [editTitle, setEditTitle] = useState("");
   const [showRoomForm, setShowRoomForm] = useState(false);
   const [user, setUser] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
   API.get("/users/profile")
@@ -41,7 +42,7 @@ export default function AdminPanel() {
       setLoading(true);
 
       if (activeTab === "events") {
-        const eventsRes = await API.get("/events");
+        const eventsRes = await API.get("/events/all");
         const roomsRes = await API.get("/rooms");
         setEvents(eventsRes.data || []);
         setRooms(roomsRes.data || []);
@@ -119,6 +120,26 @@ export default function AdminPanel() {
     }
   };
 
+  const approveEvent = async (id) => {
+  try {
+    await API.put(`/events/${id}/approve`);
+    setAlert({ type: "success", message: "Event approved" });
+    await loadData();
+  } catch {
+    setAlert({ type: "error", message: "Failed to approve event" });
+  }
+};
+
+const rejectEvent = async (id) => {
+  try {
+    await API.put(`/events/${id}/reject`);
+    setAlert({ type: "success", message: "Event rejected" });
+    await loadData();
+  } catch {
+    setAlert({ type: "error", message: "Failed to reject event" });
+  }
+};
+
   const handleUpdateEvent = async (id) => {
     try {
       await API.put(`/events/${id}`, {
@@ -164,11 +185,18 @@ export default function AdminPanel() {
 const canCreateEvent =
   user?.role === "Admin" || user?.role === "EventOrganizer";
 
+  const filteredEvents = events.filter((event) => {
+  if (statusFilter === "All") return true;
+  return event.status === statusFilter;
+});
+
 
   return (
     <div className="space-y-6 p-4 md:p-6">
       <div>
-        <h1 className="text-2xl font-bold">Admin Panel</h1>
+        <h1 className="text-2xl font-bold">
+  Admin Panel ({events.length} events)
+</h1>
         <p className="text-gray-500">Manage events and users</p>
       </div>
 
@@ -229,6 +257,24 @@ const canCreateEvent =
         {showRoomForm ? "Cancel" : "+ Create Room"}
       </button>
     </div>
+
+    <div className="flex gap-2 mb-4">
+
+  {["All", "Pending", "Approved", "Rejected"].map((status) => (
+    <button
+      key={status}
+      onClick={() => setStatusFilter(status)}
+      className={`px-3 py-1 rounded-md text-sm ${
+        statusFilter === status
+          ? "bg-violet-600 text-white"
+          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+      }`}
+    >
+      {status}
+    </button>
+  ))}
+
+</div>
 
     <div className="space-y-6">
 
@@ -385,58 +431,107 @@ const canCreateEvent =
             </div>
           ) : (
             <div className="space-y-3">
-              {events.map((event) => (
+        
+              {filteredEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+                  className="p-4 rounded-xl border bg-white shadow-sm hover:shadow-md transition"
                 >
-                  <div className="flex-1">
-                    {editingEventId === event.id ? (
-                      <>
-                        <input
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                          className="mb-2"
-                        />
-                        <button
-                          onClick={() => handleUpdateEvent(event.id)}
-                          className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
-                        >
-                          Save
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <h4 className="font-medium">{event.title}</h4>
-                        <button
-                          onClick={() => {
-                            setEditingEventId(event.id)
-                            setEditTitle(event.title)
-                          }}
-                          className="px-3 py-1 text-sm border rounded hover:bg-gray-100 mt-1"
-                        >
-                          Edit
-                        </button>
-                      </>
-                    )}
+                  <div className="flex justify-between items-start">
 
-                    <p className="text-sm text-gray-500 mt-1">
-                      {new Date(event.date).toLocaleDateString()}
-                    </p>
+  {/* LEFT SIDE */}
+  <div className="flex-1">
 
-                    <p className="text-sm text-gray-500">
-                      {event.description || "No description"}
-                    </p>
-                  </div>
+    {editingEventId === event.id ? (
+      <>
+        <input
+          value={editTitle}
+          onChange={(e) => setEditTitle(e.target.value)}
+          className="mb-2 border px-2 py-1 rounded"
+        />
+        <button
+          onClick={() => handleUpdateEvent(event.id)}
+          className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Save
+        </button>
+      </>
+    ) : (
+      <>
+        {/* TITLE + STATUS */}
+        <div className="flex items-center gap-2">
+          <h4 className="font-semibold text-gray-800">
+            {event.title}
+          </h4>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleDeleteEvent(event.id)}
-                      className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded"
-                    >
-                      Delete
-                    </button>
-                  </div>
+          <span
+            className={`text-xs px-2 py-1 rounded ${
+              event.status === "Approved"
+                ? "bg-green-100 text-green-700"
+                : event.status === "Rejected"
+                ? "bg-red-100 text-red-700"
+                : "bg-yellow-100 text-yellow-700"
+            }`}
+          >
+            {event.status}
+          </span>
+        </div>
+
+        {/* DATE */}
+        <p className="text-sm text-gray-500 mt-1">
+          {new Date(event.date).toLocaleDateString()}
+        </p>
+
+        {/* DESCRIPTION */}
+        <p className="text-sm text-gray-500">
+          {event.description || "No description"}
+        </p>
+
+        {/* EDIT BUTTON */}
+        <button
+          onClick={() => {
+            setEditingEventId(event.id);
+            setEditTitle(event.title);
+          }}
+          className="px-3 py-1 text-sm border rounded hover:bg-gray-100 mt-2"
+        >
+          Edit
+        </button>
+      </>
+    )}
+  </div>
+
+  {/* RIGHT SIDE BUTTONS */}
+  <div className="flex gap-2">
+
+    {event.status === "Pending" && (
+      <>
+        <button
+          onClick={() => approveEvent(event.id)}
+          className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          Approve
+        </button>
+
+        <button
+          onClick={() => rejectEvent(event.id)}
+          className="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
+        >
+          Reject
+        </button>
+      </>
+    )}
+
+    <button
+      onClick={() => handleDeleteEvent(event.id)}
+      className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded"
+    >
+      Delete
+    </button>
+
+  </div>
+
+</div>
                 </div>
               ))}
             </div>

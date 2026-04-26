@@ -15,6 +15,7 @@ import API from "./services/api";
 import "./styles/global.css";
 import EventDetails from "./pages/EventDetails";
 import MyEvents from "./pages/MyEvents";
+import Reports from "./pages/Reports";
 // import "./App.css";
 // import "./Sidebar.css";
 // import "./index.css";
@@ -156,6 +157,10 @@ const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768)
 
   else if (currentPage === "my-events") {
   pageContent = <MyEvents />;
+}
+
+else if (currentPage === "reports") {
+  pageContent = <Reports />;
 }
 
   else if (currentPage === "admin") {

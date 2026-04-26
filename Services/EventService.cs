@@ -18,7 +18,8 @@ public class EventService : IEventService
     public async Task<List<EventResponseDTO>> GetAllEvents()
     {
         return await _context.Events
-            .Include(e => e.Room) // ✅ REQUIRED
+            .Include(e => e.Room)
+            .Where(e => e.Status == "Approved") // ✅ ONLY APPROVED
             .Select(e => new EventResponseDTO
             {
                 Id = e.Id,
@@ -31,7 +32,8 @@ public class EventService : IEventService
                 Latitude = e.Room.Latitude,
                 Longitude = e.Room.Longitude,
 
-                CreatedByUserId = e.CreatedByUserId
+                CreatedByUserId = e.CreatedByUserId,
+                Status = e.Status // ✅ ADDED
             })
             .ToListAsync();
     }
@@ -48,13 +50,13 @@ public class EventService : IEventService
             RoomId = dto.RoomId,
             Category = dto.Category,
             ImageUrl = dto.ImageUrl,
-            CreatedByUserId = userId
+            CreatedByUserId = userId,
+            Status = "Pending"
         };
 
         _context.Events.Add(ev);
         await _context.SaveChangesAsync();
 
-        // reload with room (important)
         ev = await _context.Events
             .Include(e => e.Room)
             .FirstAsync(e => e.Id == ev.Id);
@@ -71,7 +73,8 @@ public class EventService : IEventService
             Latitude = ev.Room.Latitude,
             Longitude = ev.Room.Longitude,
 
-            CreatedByUserId = ev.CreatedByUserId
+            CreatedByUserId = ev.CreatedByUserId,
+            Status = ev.Status // ✅ ADDED
         };
     }
 
@@ -125,7 +128,7 @@ public class EventService : IEventService
     public async Task<List<EventResponseDTO>> GetEventsByUser(Guid userId)
     {
         return await _context.Events
-            .Include(e => e.Room) // ✅ REQUIRED
+            .Include(e => e.Room)
             .Where(e => e.CreatedByUserId == userId)
             .Select(e => new EventResponseDTO
             {
@@ -139,7 +142,8 @@ public class EventService : IEventService
                 Latitude = e.Room.Latitude,
                 Longitude = e.Room.Longitude,
 
-                CreatedByUserId = e.CreatedByUserId
+                CreatedByUserId = e.CreatedByUserId,
+                Status = e.Status 
             })
             .ToListAsync();
     }

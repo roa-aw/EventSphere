@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using EventSphere.API.DTOs;
 using EventSphere.API.Interfaces;
+using EventSphere.API.Data; // ✅ ADD THIS
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventSphere.API.Controllers;
 
@@ -11,10 +13,12 @@ namespace EventSphere.API.Controllers;
 public class EventsController : ControllerBase
 {
     private readonly IEventService _service;
+    private readonly AppDbContext _context; // ✅ ADD THIS
 
-    public EventsController(IEventService service)
+    public EventsController(IEventService service, AppDbContext context) // ✅ UPDATE CONSTRUCTOR
     {
         _service = service;
+        _context = context;
     }
 
     [HttpGet]
@@ -30,7 +34,7 @@ public class EventsController : ControllerBase
     {
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
-        var result = await _service.CreateEvent(dto, userId); // ✅ pass userId
+        var result = await _service.CreateEvent(dto, userId);
 
         return Ok(result);
     }
@@ -74,4 +78,41 @@ public class EventsController : ControllerBase
 
         return Ok(events);
     }
+
+    // ✅ APPROVE
+    [HttpPut("{id}/approve")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ApproveEvent(Guid id)
+    {
+        var ev = await _context.Events.FindAsync(id);
+        if (ev == null) return NotFound();
+
+        ev.Status = "Approved";
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
+
+    // ✅ REJECT
+    [HttpPut("{id}/reject")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> RejectEvent(Guid id)
+    {
+        var ev = await _context.Events.FindAsync(id);
+        if (ev == null) return NotFound();
+
+        ev.Status = "Rejected";
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
+
+    [HttpGet("all")]
+[Authorize(Roles = "Admin")]
+public async Task<IActionResult> GetAllIncludingPending()
+{
+    var events = await _context.Events.ToListAsync();
+    return Ok(events);
+}
+
 }

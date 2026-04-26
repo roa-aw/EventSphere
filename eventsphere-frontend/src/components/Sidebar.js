@@ -28,6 +28,7 @@ export default function Sidebar({ user, currentPage, onNavigate, onLogout, isOpe
     { id: "bookings", label: "My Bookings", icon: Ticket }, 
     { id: "payments", label: "Payments", icon: CreditCard },
     { id: "profile", label: "Profile", icon: User },
+    { id: "reports", label: "Reports", icon: Calendar },
   ]
 
   return (
