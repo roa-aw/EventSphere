@@ -4,6 +4,7 @@ using EventSphere.API.Entities;
 using EventSphere.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace EventSphere.API.Services;
 
 public class EventService : IEventService
@@ -19,7 +20,7 @@ public class EventService : IEventService
     {
         return await _context.Events
             .Include(e => e.Room)
-            .Where(e => e.Status == "Approved") // ✅ ONLY APPROVED
+            .Where(e => e.Status == "Approved") 
             .Select(e => new EventResponseDTO
             {
                 Id = e.Id,
@@ -33,7 +34,7 @@ public class EventService : IEventService
                 Longitude = e.Room.Longitude,
 
                 CreatedByUserId = e.CreatedByUserId,
-                Status = e.Status // ✅ ADDED
+                Status = e.Status
             })
             .ToListAsync();
     }
@@ -55,6 +56,16 @@ public class EventService : IEventService
         };
 
         _context.Events.Add(ev);
+
+        // 🔥 AUDIT LOG
+        _context.AuditLogs.Add(new AuditLog
+        {
+            Id = Guid.NewGuid(),
+            EntityName = "Event",
+            Action = "Created",
+            Timestamp = DateTime.UtcNow
+        });
+
         await _context.SaveChangesAsync();
 
         ev = await _context.Events
@@ -74,7 +85,7 @@ public class EventService : IEventService
             Longitude = ev.Room.Longitude,
 
             CreatedByUserId = ev.CreatedByUserId,
-            Status = ev.Status // ✅ ADDED
+            Status = ev.Status
         };
     }
 
@@ -99,6 +110,16 @@ public class EventService : IEventService
         ev.ImageUrl = dto.ImageUrl;
 
         _context.Events.Update(ev);
+
+        // 🔥 AUDIT LOG
+        _context.AuditLogs.Add(new AuditLog
+        {
+            Id = Guid.NewGuid(),
+            EntityName = "Event",
+            Action = "Updated",
+            Timestamp = DateTime.UtcNow
+        });
+
         await _context.SaveChangesAsync();
 
         return true;
@@ -119,6 +140,16 @@ public class EventService : IEventService
         }
 
         _context.Events.Remove(ev);
+
+        // 🔥 AUDIT LOG
+        _context.AuditLogs.Add(new AuditLog
+        {
+            Id = Guid.NewGuid(),
+            EntityName = "Event",
+            Action = "Deleted",
+            Timestamp = DateTime.UtcNow
+        });
+
         await _context.SaveChangesAsync();
 
         return true;
@@ -143,7 +174,7 @@ public class EventService : IEventService
                 Longitude = e.Room.Longitude,
 
                 CreatedByUserId = e.CreatedByUserId,
-                Status = e.Status 
+                Status = e.Status
             })
             .ToListAsync();
     }

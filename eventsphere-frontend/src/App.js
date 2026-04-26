@@ -16,6 +16,7 @@ import "./styles/global.css";
 import EventDetails from "./pages/EventDetails";
 import MyEvents from "./pages/MyEvents";
 import Reports from "./pages/Reports";
+import AuditLogs from "./pages/AuditLogs";
 // import "./App.css";
 // import "./Sidebar.css";
 // import "./index.css";
@@ -161,6 +162,10 @@ const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768)
 
 else if (currentPage === "reports") {
   pageContent = <Reports />;
+}
+
+else if (currentPage === "audit") {
+  pageContent = <AuditLogs />;
 }
 
   else if (currentPage === "admin") {

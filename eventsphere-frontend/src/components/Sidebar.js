@@ -29,6 +29,7 @@ export default function Sidebar({ user, currentPage, onNavigate, onLogout, isOpe
     { id: "payments", label: "Payments", icon: CreditCard },
     { id: "profile", label: "Profile", icon: User },
     { id: "reports", label: "Reports", icon: Calendar },
+    ...(isAdmin ? [{ id: "audit", label: "Audit Logs", icon: Shield }] : []),
   ]
 
   return (

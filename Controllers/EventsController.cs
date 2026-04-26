@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using EventSphere.API.DTOs;
 using EventSphere.API.Interfaces;
-using EventSphere.API.Data; // ✅ ADD THIS
+using EventSphere.API.Data;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using EventSphere.API.Entities;
+
 
 namespace EventSphere.API.Controllers;
 
@@ -13,9 +15,9 @@ namespace EventSphere.API.Controllers;
 public class EventsController : ControllerBase
 {
     private readonly IEventService _service;
-    private readonly AppDbContext _context; // ✅ ADD THIS
+    private readonly AppDbContext _context; 
 
-    public EventsController(IEventService service, AppDbContext context) // ✅ UPDATE CONSTRUCTOR
+    public EventsController(IEventService service, AppDbContext context) 
     {
         _service = service;
         _context = context;
@@ -79,33 +81,53 @@ public class EventsController : ControllerBase
         return Ok(events);
     }
 
-    // ✅ APPROVE
-    [HttpPut("{id}/approve")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> ApproveEvent(Guid id)
+// ✅ APPROVE
+[HttpPut("{id}/approve")]
+[Authorize(Roles = "Admin")]
+public async Task<IActionResult> ApproveEvent(Guid id)
+{
+    var ev = await _context.Events.FindAsync(id);
+    if (ev == null) return NotFound();
+
+    ev.Status = "Approved";
+
+    // 🔥 AUDIT LOG
+    _context.AuditLogs.Add(new AuditLog
     {
-        var ev = await _context.Events.FindAsync(id);
-        if (ev == null) return NotFound();
+        Id = Guid.NewGuid(),
+        EntityName = "Event",
+        Action = "Approved",
+        Timestamp = DateTime.UtcNow
+    });
 
-        ev.Status = "Approved";
-        await _context.SaveChangesAsync();
+    await _context.SaveChangesAsync();
 
-        return Ok();
-    }
+    return Ok();
+}
 
-    // ✅ REJECT
-    [HttpPut("{id}/reject")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> RejectEvent(Guid id)
+// ✅ REJECT
+[HttpPut("{id}/reject")]
+[Authorize(Roles = "Admin")]
+public async Task<IActionResult> RejectEvent(Guid id)
+{
+    var ev = await _context.Events.FindAsync(id);
+    if (ev == null) return NotFound();
+
+    ev.Status = "Rejected";
+
+    // 🔥 AUDIT LOG
+    _context.AuditLogs.Add(new AuditLog
     {
-        var ev = await _context.Events.FindAsync(id);
-        if (ev == null) return NotFound();
+        Id = Guid.NewGuid(),
+        EntityName = "Event",
+        Action = "Rejected",
+        Timestamp = DateTime.UtcNow
+    });
 
-        ev.Status = "Rejected";
-        await _context.SaveChangesAsync();
+    await _context.SaveChangesAsync();
 
-        return Ok();
-    }
+    return Ok();
+}
 
     [HttpGet("all")]
 [Authorize(Roles = "Admin")]
@@ -113,6 +135,17 @@ public async Task<IActionResult> GetAllIncludingPending()
 {
     var events = await _context.Events.ToListAsync();
     return Ok(events);
+}
+
+[HttpGet("logs")]
+[Authorize(Roles = "Admin")]
+public async Task<IActionResult> GetLogs()
+{
+    var logs = await _context.AuditLogs
+        .OrderByDescending(l => l.Timestamp)
+        .ToListAsync();
+
+    return Ok(logs);
 }
 
 }
