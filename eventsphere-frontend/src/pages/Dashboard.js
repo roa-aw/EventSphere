@@ -110,59 +110,70 @@ export default function Dashboard() {
       </div>
 
       {/* RECENT EVENTS */}
-      <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
+<div className="bg-white rounded-xl shadow-md p-6 space-y-4">
 
-        <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-lg">Recent Events</h3>
-        </div>
+  <div className="flex justify-between items-center">
+    <h3 className="font-semibold text-lg">Recent Events</h3>
+  </div>
 
-        {loading ? (
-          <div className="flex justify-center py-10">
-            <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
-          </div>
-        ) : recentEvents.length === 0 ? (
-          <p className="text-center text-gray-400">
-            No events yet
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {recentEvents.map((event) => (
-              <div
-                key={event.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100"
-              >
-                <div>
-                  <p className="font-medium">{event.title}</p>
-                  <p className="text-sm text-gray-500">
-                    {formatDate(event.date)}
-                  </p>
-                </div>
+  {loading ? (
+    <div className="flex justify-center py-10">
+      <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+    </div>
+  ) : recentEvents.length === 0 ? (
+    <p className="text-center text-gray-400">
+      No events yet
+    </p>
+  ) : (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
-                  🎭
-                </div>
+      {recentEvents.map((event) => (
+        <div
+          key={event.id}
+          onClick={() => {
+            onNavigate("events");
+            setEventDetails(event);
+          }}
+          className="group cursor-pointer bg-gray-50 hover:bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden"
+        >
+
+          {/* IMAGE */}
+          <div className="h-32 w-full overflow-hidden bg-gray-100">
+            {event.imageUrl ? (
+              <img
+                src={event.imageUrl}
+                alt={event.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "https://picsum.photos/300/200";
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                No Image
               </div>
-            ))}
+            )}
           </div>
-        )}
 
-      </div>
+          {/* CONTENT */}
+          <div className="p-4 space-y-1">
+            <p className="font-semibold text-sm group-hover:text-violet-600 transition line-clamp-1">
+              {event.title}
+            </p>
+
+            <p className="text-xs text-gray-500">
+              {formatDate(event.date)}
+            </p>
+          </div>
+
+        </div>
+      ))}
+
     </div>
+  )}
+</div>
+</div>
   )
 }
 
-/* 🔥 reusable stat card */
-function StatCard({ title, value, icon: Icon, color }) {
-  return (
-    <div className="bg-white rounded-xl shadow-md p-6 flex justify-between items-center">
-      <div>
-        <p className="text-sm text-gray-500">{title}</p>
-        <p className="text-3xl font-bold mt-1">{value}</p>
-      </div>
-
-      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center`}>
-        <Icon className="w-6 h-6 text-white" />
-      </div>
-    </div>
-  )
-}

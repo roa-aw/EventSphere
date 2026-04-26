@@ -8,4 +8,5 @@ public class EventCreateDTO
     public Guid RoomId { get; set; }
     public string Category { get; set; }
     public string? ImageUrl { get; set; }
+    
 }
