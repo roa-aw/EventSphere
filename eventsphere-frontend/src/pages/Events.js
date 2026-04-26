@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import EventCard from "../components/EventCard";
 import Alert from "../components/Alert";
+import { useNotification } from "../components/NotificationContext";
 
 
 const EVENT_CATEGORIES = [
@@ -32,6 +33,7 @@ const [category, setCategory] = useState("");
 const [imageUrl, setImageUrl] = useState("");
 const [roomId, setRoomId] = useState("");
 const [rooms, setRooms] = useState([]);
+const { addNotification } = useNotification();
 
 useEffect(() => {
   API.get("/users/profile")
@@ -67,6 +69,8 @@ const handleCreateEvent = async (e) => {
       type: "success",
       message: "Event created successfully",
     });
+
+    addNotification("Event created successfully!");
 
     // reset
     setTitle("");

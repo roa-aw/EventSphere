@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import API from "../services/api";
 import Alert from "../components/Alert";
+import { useNotification } from "../components/NotificationContext";
 
 export default function Booking({ event, onBack, goToLogin }) {
   
@@ -8,6 +9,7 @@ export default function Booking({ event, onBack, goToLogin }) {
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
+  const { addNotification } = useNotification();
 
   const loadSeats = useCallback(async () => {
     try {
@@ -51,6 +53,8 @@ export default function Booking({ event, onBack, goToLogin }) {
       type: "success",
       message: "Booking successful 🎉",
     });
+
+    addNotification("Booking successful 🎉");
 
     loadSeats();
 

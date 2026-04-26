@@ -3,6 +3,7 @@ import API from "../services/api";
 import Alert from "../components/Alert";
 import { cn } from "../lib/utils";
 import CreateRoomForm from "../components/CreateRoomForm";
+import { useNotification } from "../components/NotificationContext";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("events");
@@ -25,6 +26,7 @@ export default function AdminPanel() {
   const [showRoomForm, setShowRoomForm] = useState(false);
   const [user, setUser] = useState(null);
   const [statusFilter, setStatusFilter] = useState("All");
+  const { addNotification } = useNotification();
 
   useEffect(() => {
   API.get("/users/profile")
@@ -80,7 +82,9 @@ export default function AdminPanel() {
       setAlert({
         type: "success",
         message: "Event created successfully",
+        
       });
+      addNotification("Event created successfully");
 
       setEventForm({
         title: "",
@@ -111,12 +115,14 @@ export default function AdminPanel() {
         type: "success",
         message: "Event deleted successfully",
       });
+      addNotification("Event deleted successfully");
       await loadData();
     } catch (err) {
       setAlert({
         type: "error",
         message: "Failed to delete event",
       });
+      addNotification("Failed to delete event");
     }
   };
 
@@ -124,19 +130,24 @@ export default function AdminPanel() {
   try {
     await API.put(`/events/${id}/approve`);
     setAlert({ type: "success", message: "Event approved" });
+    addNotification("Event approved");
     await loadData();
   } catch {
     setAlert({ type: "error", message: "Failed to approve event" });
+    addNotification("Failed to approve event");
   }
 };
+
 
 const rejectEvent = async (id) => {
   try {
     await API.put(`/events/${id}/reject`);
     setAlert({ type: "success", message: "Event rejected" });
+    addNotification("Event rejected");
     await loadData();
   } catch {
     setAlert({ type: "error", message: "Failed to reject event" });
+    addNotification("Failed to reject event");
   }
 };
 
@@ -150,6 +161,7 @@ const rejectEvent = async (id) => {
         type: "success",
         message: "Event updated",
       });
+      addNotification("Event updated successfully");
 
       setEditingEventId(null);
       setEditTitle("");
@@ -159,8 +171,10 @@ const rejectEvent = async (id) => {
         type: "error",
         message: "Failed to update event",
       });
+      addNotification("Failed to update event");
     }
   };
+
 
   const handleUpdateUserRole = async (userId, newRole) => {
   try {
@@ -172,13 +186,14 @@ const rejectEvent = async (id) => {
       type: "success",
       message: "User role updated successfully",
     });
-
+    addNotification("User role updated successfully");
     await loadData();
   } catch (err) {
     setAlert({
       type: "error",
       message: "Failed to update user role",
     });
+    addNotification("Failed to update user role");
   }
 };
 
