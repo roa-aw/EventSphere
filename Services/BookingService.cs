@@ -66,6 +66,7 @@ public class BookingService : IBookingService
         var booking = new Booking
         {
             Id = Guid.NewGuid(),
+        
             UserId = userId,
             EventId = request.EventId,
             SeatId = request.SeatId,
@@ -88,29 +89,26 @@ public class BookingService : IBookingService
         };
     }
 
-    public async Task<IEnumerable<BookingResponseDTO>> GetUserBookings(Guid userId)
-    {
-        return await _context.Bookings
-            .Where(b => b.UserId == userId)
-            .Include(b => b.Event)
-            .Include(b => b.Seat)
-                .ThenInclude(s => s.Room)
-            .Select(b => new BookingResponseDTO
-            {
-                BookingId = b.Id,
-                EventId = b.EventId,
-                SeatId = b.SeatId,
-                CreatedAt = b.CreatedAt,
-                Status = b.Status,
-                EventTitle = b.Event != null ? b.Event.Title : "Unknown Event",
-                RoomName = b.Seat != null && b.Seat.Room != null
-                    ? b.Seat.Room.Name
-                    : "Unknown Room",
-                SeatNumber = b.Seat != null ? b.Seat.SeatNumber.ToString() : null,
-                BookingDate = b.CreatedAt
-            })
-            .ToListAsync();
-    }
+public async Task<IEnumerable<BookingResponseDTO>> GetUserBookings(Guid userId)
+{
+    return await _context.Bookings
+        .Where(b => b.UserId == userId)
+        .Select(b => new BookingResponseDTO
+        {
+            BookingId = b.Id,
+            EventId = b.EventId,
+            SeatId = b.SeatId,
+            CreatedAt = b.CreatedAt,
+            Status = b.Status,
+
+            EventTitle = b.Event.Title,
+            RoomName = b.Seat.Room.Name,
+            SeatNumber = b.Seat.SeatNumber.ToString(),
+
+            BookingDate = b.CreatedAt
+        })
+        .ToListAsync();
+}
 
     public async Task<bool> CancelBooking(Guid userId, Guid bookingId)
     {
@@ -127,4 +125,22 @@ public class BookingService : IBookingService
 
         return true;
     }
+
+    public async Task<BookingResponseDTO?> GetBookingWithDetails(Guid userId, Guid bookingId)
+{
+    return await _context.Bookings
+        .Where(b => b.Id == bookingId && b.UserId == userId)
+        .Include(b => b.Event)
+        .Include(b => b.Seat)
+            .ThenInclude(s => s.Room)
+        .Select(b => new BookingResponseDTO
+        {
+            BookingId = b.Id,
+            EventTitle = b.Event != null ? b.Event.Title : "Unknown Event",
+            RoomName = b.Seat != null && b.Seat.Room != null ? b.Seat.Room.Name : "Unknown Room",
+            SeatNumber = b.Seat != null ? b.Seat.SeatNumber.ToString() : "N/A",
+            BookingDate = b.CreatedAt
+        })
+        .FirstOrDefaultAsync();
+}
 }

@@ -8,8 +8,10 @@ using EventSphere.API.Data;
 using EventSphere.API.Interfaces;
 using EventSphere.API.Services;
 using EventSphere.API.Middleware;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Services
 builder.Services.AddControllers();
@@ -19,6 +21,8 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+
+
 
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -97,8 +101,8 @@ app.UseCors("AllowFrontend");
 app.UseRouting();
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionMiddleware>();
-app.UseAuthentication();   // ✅ auth first
-app.UseAuthorization();    // ✅ then authorize
+app.UseAuthentication();   
+app.UseAuthorization();    
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();

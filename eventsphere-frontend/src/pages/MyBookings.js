@@ -47,6 +47,27 @@ export default function MyBookings() {
     }
   }
 
+  const downloadTicket = async (bookingId) => {
+    try {
+      const response = await API.get(`/bookings/${bookingId}/ticket`, {
+        responseType: "blob",
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement("a")
+
+      link.href = url
+      link.setAttribute("download", "ticket.pdf")
+      document.body.appendChild(link)
+      link.click()
+    } catch (err) {
+      setAlert({
+        type: "error",
+        message: "Failed to download ticket",
+      })
+    }
+  }
+
   const getStatusStyle = (status) => {
     switch (status) {
       case "Confirmed":
@@ -63,8 +84,6 @@ export default function MyBookings() {
 
   return (
     <div className="space-y-8 p-4 md:p-6">
-
-      {/* HEADER */}
       <div>
         <h1 className="text-2xl font-bold">My Bookings</h1>
         <p className="text-gray-500">Manage your bookings</p>
@@ -78,7 +97,6 @@ export default function MyBookings() {
         />
       )}
 
-      {/* LOADING */}
       {loading ? (
         <div className="flex justify-center py-10">
           <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
@@ -89,7 +107,6 @@ export default function MyBookings() {
         </p>
       ) : (
         <>
-          {/* ACTIVE */}
           {activeBookings.length > 0 && (
             <div className="space-y-4">
               <h2 className="font-semibold">Active Bookings</h2>
@@ -105,7 +122,6 @@ export default function MyBookings() {
                       className="bg-white rounded-xl shadow-md p-5 flex justify-between items-start"
                     >
                       <div className="space-y-2">
-
                         <h3 className="font-semibold">
                           {booking.eventTitle || "Event"}
                         </h3>
@@ -140,15 +156,24 @@ export default function MyBookings() {
                         </span>
                       </div>
 
-                      <button
-                        onClick={() => handleCancelBooking(id)}
-                        disabled={booking.status === "Cancelled"}
-                        className="text-red-600 text-sm hover:underline disabled:opacity-50"
-                      >
-                        {booking.status === "Cancelled"
-                          ? "Cancelled"
-                          : "Cancel"}
-                      </button>
+                      <div className="flex flex-col gap-2 items-end">
+                        <button
+                          onClick={() => downloadTicket(id)}
+                          className="text-violet-600 text-sm hover:underline"
+                        >
+                          Download Ticket
+                        </button>
+
+                        <button
+                          onClick={() => handleCancelBooking(id)}
+                          disabled={booking.status === "Cancelled"}
+                          className="text-red-600 text-sm hover:underline disabled:opacity-50"
+                        >
+                          {booking.status === "Cancelled"
+                            ? "Cancelled"
+                            : "Cancel"}
+                        </button>
+                      </div>
                     </div>
                   )
                 })}
@@ -156,7 +181,6 @@ export default function MyBookings() {
             </div>
           )}
 
-          {/* CANCELLED */}
           {cancelledBookings.length > 0 && (
             <div className="space-y-4 opacity-60">
               <h2 className="font-semibold">Cancelled</h2>
