@@ -6,4 +6,6 @@ public class RoomResponseDTO
     public string Name { get; set; }
     public int Capacity { get; set; }
     public string? ImageUrl { get; set; }
+    public double Latitude { get; set; }
+public double Longitude { get; set; }
 }

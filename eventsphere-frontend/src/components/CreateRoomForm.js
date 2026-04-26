@@ -5,6 +5,8 @@ export default function CreateRoomForm({ onSuccess }) {
   const [name, setName] = useState("");
   const [capacity, setCapacity] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleCreateRoom = async () => {
@@ -14,9 +16,21 @@ export default function CreateRoomForm({ onSuccess }) {
     }
 
     const cap = Number(capacity);
-
     if (cap <= 0 || isNaN(cap)) {
       alert("Capacity must be greater than 0");
+      return;
+    }
+
+    if (latitude === "" || longitude === "") {
+      alert("Please enter latitude and longitude");
+      return;
+    }
+
+    const lat = Number(latitude);
+    const lng = Number(longitude);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      alert("Invalid coordinates");
       return;
     }
 
@@ -27,11 +41,16 @@ export default function CreateRoomForm({ onSuccess }) {
         name: name.trim(),
         capacity: cap,
         imageUrl,
+        latitude: lat,
+        longitude: lng,
       });
 
+      // reset form
       setName("");
       setCapacity("");
       setImageUrl("");
+      setLatitude("");
+      setLongitude("");
 
       if (onSuccess) onSuccess("Room created successfully");
     } catch (err) {
@@ -79,6 +98,22 @@ export default function CreateRoomForm({ onSuccess }) {
             className="w-full h-40 object-cover rounded-lg"
           />
         )}
+
+        <input
+          type="number"
+          placeholder="Latitude"
+          className="w-full border rounded-lg p-3"
+          value={latitude}
+          onChange={(e) => setLatitude(e.target.value)}
+        />
+
+        <input
+          type="number"
+          placeholder="Longitude"
+          className="w-full border rounded-lg p-3"
+          value={longitude}
+          onChange={(e) => setLongitude(e.target.value)}
+        />
 
         <button
           onClick={handleCreateRoom}

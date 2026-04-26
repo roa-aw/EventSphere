@@ -22,7 +22,10 @@ public class RoomService : IRoomService
             Id = Guid.NewGuid(),
             Name = dto.Name,
             Capacity = dto.Capacity,
-            ImageUrl = dto.ImageUrl
+            ImageUrl = dto.ImageUrl,
+            Latitude = dto.Latitude,
+            Longitude = dto.Longitude
+
         };
 
         _context.Rooms.Add(room);
@@ -49,7 +52,9 @@ public class RoomService : IRoomService
             Id = room.Id,
             Name = room.Name,
             Capacity = room.Capacity,
-            ImageUrl = room.ImageUrl
+            ImageUrl = room.ImageUrl,
+            Latitude = room.Latitude,
+            Longitude = room.Longitude
         };
     }
 
@@ -61,7 +66,9 @@ public class RoomService : IRoomService
                 Id = r.Id,
                 Name = r.Name,
                 Capacity = r.Capacity,
-                ImageUrl = r.ImageUrl
+                ImageUrl = r.ImageUrl,
+                Latitude = r.Latitude,
+                Longitude = r.Longitude
             })
             .ToListAsync();
     }

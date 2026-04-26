@@ -66,19 +66,48 @@ export default function EventDetails({ event, onBack, onBook }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* LEFT */}
-        <div className="lg:col-span-2 space-y-6">
+<div className="lg:col-span-2 space-y-6">
 
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="font-semibold text-lg mb-3">
-              About This Event
-            </h2>
+  {/* ABOUT */}
+  <div className="bg-white rounded-xl shadow-md p-6">
+    <h2 className="font-semibold text-lg mb-3">
+      About This Event
+    </h2>
 
-            <p className="text-gray-600">
-              {event.description || "No description available"}
-            </p>
-          </div>
+    <p className="text-gray-600">
+      {event.description || "No description available"}
+    </p>
+  </div>
 
-        </div>
+  {/* 📍 MAP (NOW IN CORRECT PLACE) */}
+  {event.latitude && event.longitude && (
+    <div className="bg-white rounded-xl shadow-md p-6">
+      <h2 className="font-semibold text-lg mb-3">
+        Location
+      </h2>
+
+      <div className="rounded-xl overflow-hidden border">
+        <iframe
+          src={`https://maps.google.com/maps?q=${event.latitude},${event.longitude}&z=15&output=embed`}
+          width="100%"
+          height="300"
+          loading="lazy"
+          className="border-0"
+        />
+      </div>
+
+      <a
+        href={`https://www.google.com/maps?q=${event.latitude},${event.longitude}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-violet-600 hover:underline mt-3 inline-block"
+      >
+        Open in Google Maps →
+      </a>
+    </div>
+  )}
+
+</div>
 
         {/* RIGHT SIDEBAR */}
         <div className="space-y-6">
@@ -100,7 +129,7 @@ export default function EventDetails({ event, onBack, onBook }) {
 
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-indigo-600" />
-                <span>{event.room || "Room not specified"}</span>
+                <span>Room assigned</span>
               </div>
 
               <div className="flex items-center gap-3">

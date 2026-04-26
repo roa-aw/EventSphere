@@ -18,6 +18,7 @@ public class EventService : IEventService
     public async Task<List<EventResponseDTO>> GetAllEvents()
     {
         return await _context.Events
+            .Include(e => e.Room) // ✅ REQUIRED
             .Select(e => new EventResponseDTO
             {
                 Id = e.Id,
@@ -26,12 +27,16 @@ public class EventService : IEventService
                 Date = e.Date,
                 Category = e.Category,
                 ImageUrl = e.ImageUrl,
-                CreatedByUserId = e.CreatedByUserId // ✅ added
+
+                Latitude = e.Room.Latitude,
+                Longitude = e.Room.Longitude,
+
+                CreatedByUserId = e.CreatedByUserId
             })
             .ToListAsync();
     }
 
-    // ✅ UPDATED (added userId)
+    // ✅ Create
     public async Task<EventResponseDTO> CreateEvent(EventCreateDTO dto, Guid userId)
     {
         var ev = new Event
@@ -43,11 +48,16 @@ public class EventService : IEventService
             RoomId = dto.RoomId,
             Category = dto.Category,
             ImageUrl = dto.ImageUrl,
-            CreatedByUserId = userId // ✅ important
+            CreatedByUserId = userId
         };
 
         _context.Events.Add(ev);
         await _context.SaveChangesAsync();
+
+        // reload with room (important)
+        ev = await _context.Events
+            .Include(e => e.Room)
+            .FirstAsync(e => e.Id == ev.Id);
 
         return new EventResponseDTO
         {
@@ -57,21 +67,23 @@ public class EventService : IEventService
             Date = ev.Date,
             Category = ev.Category,
             ImageUrl = ev.ImageUrl,
-            CreatedByUserId = ev.CreatedByUserId // ✅ added
+
+            Latitude = ev.Room.Latitude,
+            Longitude = ev.Room.Longitude,
+
+            CreatedByUserId = ev.CreatedByUserId
         };
     }
 
-    // ✅ UPDATED (ownership + role)
+    // ✅ Update
     public async Task<bool> UpdateEvent(Guid id, EventCreateDTO dto, Guid userId, string role)
     {
         var ev = await _context.Events.FindAsync(id);
         if (ev == null)
             return false;
 
-        // ✅ Admin can update anything
         if (role != "Admin")
         {
-            // ✅ Organizer can only update own event
             if (role != "EventOrganizer" || ev.CreatedByUserId != userId)
                 return false;
         }
@@ -89,7 +101,7 @@ public class EventService : IEventService
         return true;
     }
 
-    // ✅ UPDATED (ownership + role)
+    // ✅ Delete
     public async Task<bool> DeleteEvent(Guid id, Guid userId, string role)
     {
         var ev = await _context.Events.FindAsync(id);
@@ -97,10 +109,8 @@ public class EventService : IEventService
         if (ev == null)
             return false;
 
-        // ✅ Admin can delete anything
         if (role != "Admin")
         {
-            // ✅ Organizer can only delete own event
             if (role != "EventOrganizer" || ev.CreatedByUserId != userId)
                 return false;
         }
@@ -111,10 +121,11 @@ public class EventService : IEventService
         return true;
     }
 
-    // ✅ NEW (for My Events page)
+    // ✅ My Events
     public async Task<List<EventResponseDTO>> GetEventsByUser(Guid userId)
     {
         return await _context.Events
+            .Include(e => e.Room) // ✅ REQUIRED
             .Where(e => e.CreatedByUserId == userId)
             .Select(e => new EventResponseDTO
             {
@@ -124,6 +135,10 @@ public class EventService : IEventService
                 Date = e.Date,
                 Category = e.Category,
                 ImageUrl = e.ImageUrl,
+
+                Latitude = e.Room.Latitude,
+                Longitude = e.Room.Longitude,
+
                 CreatedByUserId = e.CreatedByUserId
             })
             .ToListAsync();
