@@ -3,6 +3,8 @@
 import { Calendar, MapPin } from "lucide-react"
 import { cn } from "../lib/utils"
 import API from "../services/api";
+import { useEffect, useState } from "react";
+
 const categoryColors = {
   AI: "bg-blue-100 text-blue-700 border-blue-200",
   Blockchain: "bg-amber-100 text-amber-700 border-amber-200",
@@ -50,6 +52,19 @@ export default function EventCard({
     alert("Failed to delete");
   }
 };
+
+const [user, setUser] = useState(null);
+
+useEffect(() => {
+  API.get("/users/profile")
+    .then(res => setUser(res.data))
+    .catch(() => {});
+}, []);
+
+const canDelete =
+  user?.role === "Admin" ||
+  (user?.role === "EventOrganizer" &&
+    event.createdByUserId === user?.id);
 
   return (
     <div className="group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white">
@@ -113,12 +128,6 @@ export default function EventCard({
           </div>
         </div>
 
-        <button
-  onClick={() => handleDelete(event.id)}
-  className="text-red-500"
->
-  Delete
-</button>
 
         {/* BUTTONS */}
         <div className="flex gap-2">
