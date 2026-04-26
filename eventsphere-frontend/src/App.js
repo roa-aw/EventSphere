@@ -112,8 +112,16 @@ const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768)
   }
 
   else if (currentPage === "dashboard") {
-    pageContent = <Dashboard />;
-  }
+  pageContent = (
+    <Dashboard
+      onNavigate={handleNavigate}
+      setEventDetails={(event) => {
+        setEventDetails(event);
+        setCurrentPage("eventDetails");
+      }}
+    />
+  );
+}
 
   else if (currentPage === "events") {
     pageContent = (

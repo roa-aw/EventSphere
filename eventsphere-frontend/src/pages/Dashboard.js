@@ -3,7 +3,7 @@ import { Calendar, Ticket, DoorOpen } from "lucide-react"
 import API from "../services/api"
 import Alert from "../components/Alert"
 
-export default function Dashboard() {
+export default function Dashboard({ onNavigate, setEventDetails }) {
   const [recentEvents, setRecentEvents] = useState([])
   const [stats, setStats] = useState({
     totalEvents: 0,
@@ -174,6 +174,20 @@ export default function Dashboard() {
   )}
 </div>
 </div>
+  )
+}
+function StatCard({ title, value, icon: Icon, color }) {
+  return (
+    <div className="bg-white rounded-xl shadow-md p-6 flex justify-between items-center">
+      <div>
+        <p className="text-sm text-gray-500">{title}</p>
+        <p className="text-3xl font-bold mt-1">{value}</p>
+      </div>
+
+      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center`}>
+        <Icon className="w-6 h-6 text-white" />
+      </div>
+    </div>
   )
 }
 
