@@ -26,7 +26,7 @@ public class BookingService : IBookingService
         if (eventEntity == null)
             throw new Exception("Event not found");
 
-        // 🔒 Lock seat (prevents race conditions)
+        // Lock seat 
         var seat = await _context.Seats
             .FromSqlRaw("SELECT * FROM \"Seats\" WHERE \"Id\" = {0} FOR UPDATE", request.SeatId)
             .FirstOrDefaultAsync();
@@ -38,7 +38,7 @@ public class BookingService : IBookingService
         if (seat.RoomId != eventEntity.RoomId)
             throw new Exception("Seat does not belong to the event's room");
 
-        // 🔥 REMOVE cancelled booking (fixes UNIQUE constraint issue)
+        // REMOVE cancelled booking
         var cancelledBooking = await _context.Bookings
             .FirstOrDefaultAsync(b =>
                 b.EventId == request.EventId &&
@@ -51,7 +51,7 @@ public class BookingService : IBookingService
             _context.Bookings.Remove(cancelledBooking);
         }
 
-        // ❌ Check if already booked (only active bookings)
+        // Check if seat is already booked 
         var existingBooking = await _context.Bookings
             .AnyAsync(b =>
                 b.EventId == request.EventId &&
@@ -62,7 +62,7 @@ public class BookingService : IBookingService
         if (existingBooking)
             throw new Exception("Seat already booked");
 
-        // ✅ Create booking
+        // Create booking
         var booking = new Booking
         {
             Id = Guid.NewGuid(),
@@ -118,7 +118,7 @@ public async Task<IEnumerable<BookingResponseDTO>> GetUserBookings(Guid userId)
         if (booking == null)
             return false;
 
-        // ✅ Mark as cancelled (keeps history)
+        // Mark as cancelled (keeps history)
         booking.Status = "Cancelled";
 
         await _context.SaveChangesAsync();
