@@ -18,7 +18,7 @@ export default function Reports() {
       setLoading(true);
 
       const eventsRes = await API.get("/events");
-      const bookingsRes = await API.get("/bookings");
+      const bookingsRes = await API.get("/bookings/all");
       const roomsRes = await API.get("/rooms");
 
       setEvents(eventsRes.data || []);

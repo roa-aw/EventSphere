@@ -15,23 +15,28 @@ import {
 } from "lucide-react"
 import { cn } from "../lib/utils"
 import { Link } from "react-router-dom"
-
+import { BarChart } from "lucide-react"
 export default function Sidebar({ user, currentPage, onNavigate, onLogout, isOpen, setIsOpen }) {
 
   const isAdmin =
     user?.role === "Admin" || user?.role === "admin"
 
-  const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "events", label: "Events", icon: Calendar },
-    { id: "rooms", label: "Rooms", icon: DoorOpen },
-    { id: "bookings", label: "My Bookings", icon: Ticket }, 
-    { id: "payments", label: "Payments", icon: CreditCard },
-    { id: "profile", label: "Profile", icon: User },
-    { id: "reports", label: "Reports", icon: Calendar },
-    ...(isAdmin ? [{ id: "audit", label: "Audit Logs", icon: Shield }] : []),
-  ]
+const navItems = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "events", label: "Events", icon: Calendar },
+  { id: "rooms", label: "Rooms", icon: DoorOpen },
+  { id: "bookings", label: "My Bookings", icon: Ticket },
+  { id: "payments", label: "Payments", icon: CreditCard },
+  { id: "profile", label: "Profile", icon: User },
 
+  // ✅ ADMIN ONLY
+  ...(isAdmin
+    ? [
+        { id: "reports", label: "Reports", icon: BarChart },
+        { id: "audit", label: "Audit Logs", icon: Shield }
+      ]
+    : [])
+]
   return (
     <>
       {/* MOBILE OVERLAY */}

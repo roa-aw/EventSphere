@@ -245,4 +245,23 @@ byte[] qrBytes = qrCode.GetGraphic(10);
 
 }
 
+[Authorize(Roles = "Admin")]
+[HttpGet("all")]
+public async Task<IActionResult> GetAllBookings()
+{
+    var bookings = await _context.Bookings
+        .Select(b => new
+        {
+            b.Id,
+            b.Status,
+            EventTitle = b.Event.Title,
+            RoomName = b.Seat.Room.Name,
+            SeatNumber = b.Seat.SeatNumber,
+            BookingDate = b.CreatedAt
+        })
+        .ToListAsync();
+
+    return Ok(bookings);
+}
+
 }
