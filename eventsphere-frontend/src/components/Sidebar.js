@@ -162,26 +162,30 @@ const navItems = [
             </div>
 
             {isOpen && (
-              <div>
-                <p className="text-white font-medium">
-                  {user?.fullName || "User"}
-                </p>
-                <p className="text-xs text-violet-300">
-                  {isAdmin ? "Admin" : "User"}
-                </p>
-              </div>
-            )}
+  <div>
+    <p className="text-white font-medium">
+      {user?.fullName || "User"}
+    </p>
+    <p className="text-xs text-violet-300">
+      {user?.role === "Admin"
+        ? "Admin"
+        : user?.role === "EventOrganizer"
+        ? "Organizer"
+        : "User"}
+    </p>
+  </div>
+)}
           </div>
 
           {isOpen && (
-            <button
-              onClick={onLogout}
-              className="w-full mt-4 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          )}
+  <button
+    onClick={user ? onLogout : () => onNavigate("login")}
+    className="w-full mt-4 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30"
+  >
+    <LogOut className="w-4 h-4" />
+    {user ? "Logout" : "Login"}
+  </button>
+)}
         </div>
       </aside>
     </>
