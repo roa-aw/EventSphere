@@ -264,4 +264,25 @@ public async Task<IActionResult> GetAllBookings()
     return Ok(bookings);
 }
 
+[Authorize]
+[HttpPost("{id}/pay")]
+public async Task<IActionResult> PayBooking(Guid id)
+{
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+    if (userIdClaim == null) return Unauthorized();
+
+    var userId = Guid.Parse(userIdClaim.Value);
+
+    var booking = await _context.Bookings
+        .FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId);
+
+    if (booking == null) return NotFound();
+    if (booking.Status == "Cancelled") return BadRequest("Cannot pay for cancelled booking");
+
+    booking.Status = "Paid";
+    await _context.SaveChangesAsync();
+
+    return Ok(new { message = "Payment successful" });
+}
+
 }

@@ -87,6 +87,7 @@ const handleCreateEvent = async (e) => {
       type: "error",
       message: "Failed to create event",
     });
+    addNotification("Failed to create event");
   }
 };
 

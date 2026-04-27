@@ -32,23 +32,28 @@ export default function Payments() {
   }
 
   const handlePayment = async (e) => {
-    e.preventDefault()
+  e.preventDefault()
 
-    if (!paymentMethod) {
-      setAlert({ type: "error", message: "Select payment method" })
-      return
-    }
+  if (!paymentMethod) {
+    setAlert({ type: "error", message: "Select payment method" })
+    return
+  }
 
+  try {
+    // fake processing delay for demo effect
     await new Promise((r) => setTimeout(r, 1500))
 
-    setAlert({
-      type: "success",
-      message: `Payment successful via ${paymentMethod}`,
-    })
+    // ✅ actually mark as paid on backend
+    await API.post(`/bookings/${selectedBooking.bookingId}/pay`)
 
+    setAlert({ type: "success", message: `Payment successful via ${paymentMethod}! 🎉` })
     setSelectedBooking(null)
     setPaymentMethod("")
+    await loadBookings() 
+  } catch {
+    setAlert({ type: "error", message: "Payment failed. Try again." })
   }
+}
 
   const getStatusStyle = (status) => {
     if (status === "Paid")
@@ -87,9 +92,10 @@ export default function Payments() {
             <p className="text-sm text-gray-500">
               Seat: {selectedBooking.seatNumber}
             </p>
-            <p className="text-xl font-bold text-violet-600 mt-2">
-              $99.99
-            </p>
+<p className="text-xl font-bold">
+  ${(paid * 10.00).toFixed(2)}
+</p>
+            
           </div>
 
           <form onSubmit={handlePayment} className="space-y-4">
@@ -157,7 +163,7 @@ export default function Payments() {
               <CreditCard className="text-violet-600" />
               <div>
                 <p className="text-sm text-gray-500">Total</p>
-                <p className="text-xl font-bold">$0</p>
+                <p className="text-xl font-bold">${(paid * 10.00).toFixed(2)}</p>
               </div>
             </div>
 
