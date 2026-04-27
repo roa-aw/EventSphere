@@ -497,31 +497,8 @@ export default function AdminPanel() {
 )}
                       </div>
 
-                      {/* RIGHT SIDE BUTTONS */}
-                      <div className="flex gap-2 flex-shrink-0">
-                        {event.status === "Pending" && (
-                          <>
-                            <button
-                              onClick={() => approveEvent(event.id)}
-                              className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              onClick={() => rejectEvent(event.id)}
-                              className="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                            >
-                              Reject
-                            </button>
-                          </>
-                        )}
-                        <button
-                          onClick={() => handleDeleteEvent(event.id)}
-                          className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      
+                      
 
                     </div>
                   </div>
